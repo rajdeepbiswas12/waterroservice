@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
-import { AddressAutocompleteComponent } from '../../shared/address-autocomplete/address-autocomplete.component';
+// import { AddressAutocompleteComponent } from '../../shared/address-autocomplete/address-autocomplete.component'; // Commented out Google Maps integration
 
 @Component({
   selector: 'app-create-order',
@@ -30,8 +30,8 @@ import { AddressAutocompleteComponent } from '../../shared/address-autocomplete/
     MatNativeDateModule,
     MatIconModule,
     MatDividerModule,
-    RouterModule,
-    AddressAutocompleteComponent
+    RouterModule
+    // AddressAutocompleteComponent // Commented out Google Maps integration
   ],
   templateUrl: './create-order.component.html',
   styleUrls: ['./create-order.component.scss']
@@ -62,11 +62,11 @@ export class CreateOrderComponent implements OnInit {
       customerPhone: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
       customerEmail: ['', [Validators.email]],
       customerAddress: ['', Validators.required],
-      city: [''],
-      state: [''],
-      postalCode: [''],
-      latitude: [''],
-      longitude: [''],
+      // city: [''], // Removed Google Maps integration
+      // state: [''], // Removed Google Maps integration
+      // postalCode: [''], // Removed Google Maps integration
+      // latitude: [''], // Removed Google Maps integration
+      // longitude: [''], // Removed Google Maps integration
       serviceType: ['', Validators.required],
       priority: ['medium', Validators.required],
       description: [''],
@@ -88,16 +88,17 @@ export class CreateOrderComponent implements OnInit {
     });
   }
 
-  onAddressSelected(addressData: any) {
-    this.orderForm.patchValue({
-      customerAddress: addressData.address,
-      latitude: addressData.latitude,
-      longitude: addressData.longitude,
-      city: addressData.city,
-      state: addressData.state,
-      postalCode: addressData.postalCode
-    });
-  }
+  // Commented out Google Maps integration
+  // onAddressSelected(addressData: any) {
+  //   this.orderForm.patchValue({
+  //     customerAddress: addressData.address,
+  //     latitude: addressData.latitude,
+  //     longitude: addressData.longitude,
+  //     city: addressData.city,
+  //     state: addressData.state,
+  //     postalCode: addressData.postalCode
+  //   });
+  // }
 
   onSubmit() {
     if (this.orderForm.valid) {
@@ -106,8 +107,8 @@ export class CreateOrderComponent implements OnInit {
       const orderData = {
         ...this.orderForm.value,
         customerEmail: this.orderForm.value.customerEmail || null,
-        latitude: this.orderForm.value.latitude ? parseFloat(this.orderForm.value.latitude) : null,
-        longitude: this.orderForm.value.longitude ? parseFloat(this.orderForm.value.longitude) : null,
+        // latitude: this.orderForm.value.latitude ? parseFloat(this.orderForm.value.latitude) : null, // Removed
+        // longitude: this.orderForm.value.longitude ? parseFloat(this.orderForm.value.longitude) : null, // Removed
         scheduledDate: this.orderForm.value.scheduledDate ? new Date(this.orderForm.value.scheduledDate).toISOString() : null
       };
 
