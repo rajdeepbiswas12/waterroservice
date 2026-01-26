@@ -1,0 +1,102 @@
+<div class="admin-management-container">
+  <mat-card class="header-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>admin_panel_settings</mat-icon>
+        Admin Management
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="actions-bar">
+        <div class="filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="activeFilter" (selectionChange)="applyFilters()">
+              <mat-option value="">All</mat-option>
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="inactive">Inactive</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <button mat-raised-button color="primary" routerLink="/admin/admins/create">
+          <mat-icon>person_add</mat-icon>
+          Add Admin
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="table-card">
+    <table mat-table [dataSource]="filteredAdmins" class="admin-table">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let admin">
+          <div class="admin-info">
+            <mat-icon class="avatar-icon">account_circle</mat-icon>
+            <strong>{{ admin.name }}</strong>
+            <mat-chip *ngIf="admin.id === currentUserId" color="primary">You</mat-chip>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let admin">{{ admin.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="phone">
+        <th mat-header-cell *matHeaderCellDef>Phone</th>
+        <td mat-cell *matCellDef="let admin">{{ admin.phone }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <td mat-cell *matCellDef="let admin">
+          <mat-chip color="warn">{{ admin.role | titlecase }}</mat-chip>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let admin">
+          <mat-slide-toggle 
+            [checked]="admin.isActive" 
+            (change)="toggleActive(admin)"
+            [disabled]="admin.id === currentUserId"
+            color="primary">
+            {{ admin.isActive ? 'Active' : 'Inactive' }}
+          </mat-slide-toggle>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let admin">
+          <button mat-icon-button [routerLink]="['/admin/admins', admin.id]" matTooltip="View Details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button mat-icon-button [routerLink]="['/admin/admins/edit', admin.id]" matTooltip="Edit">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="deleteAdmin(admin.id)" 
+            matTooltip="Delete" 
+            color="warn"
+            [disabled]="admin.id === currentUserId">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="filteredAdmins.length === 0" class="no-data">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <p>No administrators found</p>
+    </div>
+  </mat-card>
+</div>
