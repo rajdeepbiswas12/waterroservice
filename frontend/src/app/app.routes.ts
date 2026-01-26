@@ -10,6 +10,7 @@ import { EmployeesListComponent } from './components/admin/employees-list/employ
 import { CreateEmployeeComponent } from './components/admin/create-employee/create-employee.component';
 import { AdminManagementComponent } from './components/admin/admin-management/admin-management.component';
 import { CreateAdminComponent } from './components/admin/create-admin/create-admin.component';
+import { UserDetailComponent } from './components/admin/user-detail/user-detail.component';
 import { EmployeeDashboardComponent } from './components/employee/employee-dashboard/employee-dashboard.component';
 import { EmployeeOrdersComponent } from './components/employee/employee-orders/employee-orders.component';
 import { OrderDetailComponent } from './components/employee/order-detail/order-detail.component';
@@ -30,8 +31,10 @@ export const routes: Routes = [
       { path: 'orders/:id', component: AdminOrderDetailComponent },
       { path: 'employees', component: EmployeesListComponent },
       { path: 'employees/create', component: CreateEmployeeComponent },
+      { path: 'employees/:id', component: UserDetailComponent },
       { path: 'admins', component: AdminManagementComponent },
       { path: 'admins/create', component: CreateAdminComponent },
+      { path: 'admins/:id', component: UserDetailComponent },
     ]
   },
   {

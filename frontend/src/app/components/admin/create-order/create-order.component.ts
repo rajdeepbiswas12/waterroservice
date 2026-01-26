@@ -91,7 +91,8 @@ export class CreateOrderComponent implements OnInit {
         ...this.orderForm.value,
         customerEmail: this.orderForm.value.customerEmail || null,
         latitude: this.orderForm.value.latitude ? parseFloat(this.orderForm.value.latitude) : null,
-        longitude: this.orderForm.value.longitude ? parseFloat(this.orderForm.value.longitude) : null
+        longitude: this.orderForm.value.longitude ? parseFloat(this.orderForm.value.longitude) : null,
+        scheduledDate: this.orderForm.value.scheduledDate ? new Date(this.orderForm.value.scheduledDate).toISOString() : null
       };
 
       this.orderService.createOrder(orderData).subscribe({

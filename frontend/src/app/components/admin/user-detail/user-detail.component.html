@@ -1,0 +1,258 @@
+<div class="user-detail-container">
+  <div class="header-actions">
+    <button mat-raised-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to {{ userType === 'employee' ? 'Employees' : 'Admins' }}
+    </button>
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" (click)="toggleEditMode()" *ngIf="!editMode">
+        <mat-icon>edit</mat-icon>
+        Edit {{ userType === 'employee' ? 'Employee' : 'Admin' }}
+      </button>
+      <button mat-raised-button color="warn" (click)="deleteUser()" *ngIf="!editMode">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && user" class="content">
+    <mat-tab-group>
+      <!-- User Details Tab -->
+      <mat-tab label="User Details">
+        <div class="tab-content">
+          <mat-card *ngIf="!editMode" class="info-card">
+            <mat-card-header>
+              <mat-icon class="user-avatar">account_circle</mat-icon>
+              <mat-card-title>
+                <div class="user-header">
+                  <h2>{{ user.name }}</h2>
+                  <mat-chip [color]="user.isActive ? 'primary' : 'warn'">
+                    {{ user.isActive ? 'Active' : 'Inactive' }}
+                  </mat-chip>
+                  <mat-chip color="accent">{{ user.role | titlecase }}</mat-chip>
+                </div>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="info-grid">
+                <div class="info-row">
+                  <strong><mat-icon>email</mat-icon> Email:</strong>
+                  <span>{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                  <strong><mat-icon>phone</mat-icon> Phone:</strong>
+                  <span>{{ user.phone }}</span>
+                </div>
+                <div class="info-row" *ngIf="user.address">
+                  <strong><mat-icon>home</mat-icon> Address:</strong>
+                  <span>{{ user.address }}</span>
+                </div>
+                <div class="info-row">
+                  <strong><mat-icon>event</mat-icon> Joined:</strong>
+                  <span>{{ user.createdAt | date:'medium' }}</span>
+                </div>
+                <div class="info-row" *ngIf="userType === 'employee'">
+                  <strong><mat-icon>assignment</mat-icon> Assigned Orders:</strong>
+                  <span>{{ orders.length }}</span>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Edit Form -->
+          <mat-card *ngIf="editMode" class="edit-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>edit</mat-icon>
+                Edit User Information
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="userForm" (ngSubmit)="updateUser()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Full Name</mat-label>
+                    <input matInput formControlName="name" required>
+                    <mat-icon matPrefix>person</mat-icon>
+                    <mat-error *ngIf="userForm.get('name')?.hasError('required')">
+                      Name is required
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email" type="email" required>
+                    <mat-icon matPrefix>email</mat-icon>
+                    <mat-error *ngIf="userForm.get('email')?.hasError('required')">
+                      Email is required
+                    </mat-error>
+                    <mat-error *ngIf="userForm.get('email')?.hasError('email')">
+                      Invalid email format
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Phone</mat-label>
+                    <input matInput formControlName="phone" required>
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <mat-error *ngIf="userForm.get('phone')?.hasError('required')">
+                      Phone is required
+                    </mat-error>
+                    <mat-error *ngIf="userForm.get('phone')?.hasError('pattern')">
+                      Invalid phone format
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Address</mat-label>
+                    <textarea matInput formControlName="address" rows="2"></textarea>
+                    <mat-icon matPrefix>home</mat-icon>
+                  </mat-form-field>
+
+                  <div class="status-toggle full-width">
+                    <mat-slide-toggle formControlName="isActive" color="primary">
+                      Account Active
+                    </mat-slide-toggle>
+                  </div>
+                </div>
+
+                <div class="button-group">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="loading || userForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    Save Changes
+                  </button>
+                  <button mat-button type="button" (click)="toggleEditMode()">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Change Password Tab -->
+      <mat-tab label="Change Password">
+        <div class="tab-content">
+          <mat-card class="password-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>lock</mat-icon>
+                Change Password
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+                <div class="form-grid">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>New Password</mat-label>
+                    <input matInput [type]="hidePassword ? 'password' : 'text'" 
+                           formControlName="newPassword" required>
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+                      <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('required')">
+                      Password is required
+                    </mat-error>
+                    <mat-error *ngIf="passwordForm.get('newPassword')?.hasError('minlength')">
+                      Password must be at least 6 characters
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Confirm Password</mat-label>
+                    <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" 
+                           formControlName="confirmPassword" required>
+                    <mat-icon matPrefix>lock</mat-icon>
+                    <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
+                      <mat-icon>{{ hideConfirmPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+                    </button>
+                    <mat-error *ngIf="passwordForm.get('confirmPassword')?.hasError('required')">
+                      Confirm password is required
+                    </mat-error>
+                    <mat-error *ngIf="passwordForm.hasError('passwordMismatch') && !passwordForm.get('confirmPassword')?.hasError('required')">
+                      Passwords do not match
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="button-group">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="loading || passwordForm.invalid">
+                    <mat-icon>save</mat-icon>
+                    Change Password
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Assigned Orders Tab (Employee Only) -->
+      <mat-tab label="Assigned Orders" *ngIf="userType === 'employee'">
+        <div class="tab-content">
+          <mat-card class="orders-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>assignment</mat-icon>
+                Assigned Orders ({{ orders.length }})
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div *ngIf="orders.length === 0" class="no-orders">
+                <mat-icon>inbox</mat-icon>
+                <p>No orders assigned yet</p>
+              </div>
+
+              <table mat-table [dataSource]="orders" class="orders-table" *ngIf="orders.length > 0">
+                <ng-container matColumnDef="orderNumber">
+                  <th mat-header-cell *matHeaderCellDef>Order #</th>
+                  <td mat-cell *matCellDef="let order">
+                    <a [routerLink]="['/admin/orders', order.id]">{{ order.orderNumber }}</a>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="customerName">
+                  <th mat-header-cell *matHeaderCellDef>Customer</th>
+                  <td mat-cell *matCellDef="let order">{{ order.customerName }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="status">
+                  <th mat-header-cell *matHeaderCellDef>Status</th>
+                  <td mat-cell *matCellDef="let order">
+                    <mat-chip [color]="getStatusColor(order.status)">
+                      {{ order.status }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="priority">
+                  <th mat-header-cell *matHeaderCellDef>Priority</th>
+                  <td mat-cell *matCellDef="let order">
+                    <mat-chip [color]="getPriorityColor(order.priority)">
+                      {{ order.priority }}
+                    </mat-chip>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="scheduledDate">
+                  <th mat-header-cell *matHeaderCellDef>Scheduled</th>
+                  <td mat-cell *matCellDef="let order">{{ formatDate(order.scheduledDate) }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+              </table>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</div>

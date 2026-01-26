@@ -179,6 +179,13 @@ export class AdminOrderDetailComponent implements OnInit {
       formData.customerEmail = null;
     }
 
+    // Handle scheduledDate
+    if (formData.scheduledDate) {
+      formData.scheduledDate = new Date(formData.scheduledDate).toISOString();
+    } else {
+      formData.scheduledDate = null;
+    }
+
     this.orderService.updateOrder(this.orderId, formData).subscribe({
       next: (response) => {
         this.snackBar.open('Order updated successfully!', 'Close', {
