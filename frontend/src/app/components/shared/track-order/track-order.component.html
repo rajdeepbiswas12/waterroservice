@@ -1,0 +1,174 @@
+<div class="track-order-container">
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading order tracking...</p>
+  </div>
+
+  <div *ngIf="!loading && order" class="tracking-content">
+    <!-- Header -->
+    <mat-card class="header-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>local_shipping</mat-icon>
+          Track Order #{{ order.orderId }}
+        </mat-card-title>
+        <button mat-icon-button (click)="refreshTracking()" matTooltip="Refresh">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="order-info">
+          <div class="info-item">
+            <mat-icon>person</mat-icon>
+            <div>
+              <strong>{{ order.customerName }}</strong>
+              <p>{{ order.customerPhone }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <mat-icon>build</mat-icon>
+            <div>
+              <strong>{{ order.serviceType }}</strong>
+              <mat-chip [color]="getStatusInfo(order.status).color" selected>
+                <mat-icon>{{ getStatusInfo(order.status).icon }}</mat-icon>
+                {{ getStatusInfo(order.status).label }}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Progress Bar -->
+    <mat-card class="progress-card">
+      <mat-card-content>
+        <h3>Order Progress</h3>
+        <div class="progress-wrapper">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getProgressPercentage()"></div>
+          </div>
+          <div class="progress-label">{{ getProgressPercentage() }}% Complete</div>
+        </div>
+
+        <div class="status-steps">
+          <div class="step" [class.active]="['pending', 'assigned', 'in-progress', 'completed'].includes(order.status)">
+            <mat-icon>schedule</mat-icon>
+            <span>Pending</span>
+          </div>
+          <div class="step" [class.active]="['assigned', 'in-progress', 'completed'].includes(order.status)">
+            <mat-icon>assignment_ind</mat-icon>
+            <span>Assigned</span>
+          </div>
+          <div class="step" [class.active]="['in-progress', 'completed'].includes(order.status)">
+            <mat-icon>build</mat-icon>
+            <span>In Progress</span>
+          </div>
+          <div class="step" [class.active]="order.status === 'completed'">
+            <mat-icon>check_circle</mat-icon>
+            <span>Completed</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Map Location -->
+    <mat-card class="map-card" *ngIf="order.latitude && order.longitude">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>location_on</mat-icon>
+          Service Location
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <app-google-map 
+          [latitude]="order.latitude" 
+          [longitude]="order.longitude"
+          [address]="order.customerAddress"
+          [zoom]="15">
+        </app-google-map>
+        <div class="address-info">
+          <mat-icon>place</mat-icon>
+          <span>{{ order.customerAddress }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Employee Information -->
+    <mat-card class="employee-card" *ngIf="order.assignedTo">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>support_agent</mat-icon>
+          Service Technician
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="employee-info">
+          <mat-icon class="avatar-icon">account_circle</mat-icon>
+          <div>
+            <h3>{{ order.assignedTo.name }}</h3>
+            <p><mat-icon>phone</mat-icon> {{ order.assignedTo.phone }}</p>
+            <p><mat-icon>email</mat-icon> {{ order.assignedTo.email }}</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Order History Timeline -->
+    <mat-card class="timeline-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>history</mat-icon>
+          Order Timeline
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="timeline" *ngIf="orderHistory.length > 0">
+          <div class="timeline-item" *ngFor="let item of orderHistory">
+            <div class="timeline-marker">
+              <mat-icon [style.color]="getStatusInfo(item.newStatus).color === 'primary' ? '#3f51b5' : 
+                                      getStatusInfo(item.newStatus).color === 'accent' ? '#ff4081' : 
+                                      '#f44336'">
+                {{ getTimelineIcon(item.newStatus) }}
+              </mat-icon>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <strong>{{ getStatusInfo(item.newStatus).label }}</strong>
+                <span class="timeline-date">{{ formatDate(item.changedAt) }}</span>
+              </div>
+              <p *ngIf="item.notes">{{ item.notes }}</p>
+              <small>Updated by: {{ item.changedBy?.name || 'System' }}</small>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="orderHistory.length === 0" class="no-history">No history available</p>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Service Details -->
+    <mat-card class="details-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>description</mat-icon>
+          Service Details
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="detail-row">
+          <strong>Scheduled Date:</strong>
+          <span>{{ formatDate(order.scheduledDate) }}</span>
+        </div>
+        <div class="detail-row">
+          <strong>Priority:</strong>
+          <mat-chip [color]="order.priority === 'urgent' ? 'warn' : 'primary'" selected>
+            {{ order.priority | titlecase }}
+          </mat-chip>
+        </div>
+        <div class="detail-row" *ngIf="order.description">
+          <strong>Description:</strong>
+          <p>{{ order.description }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

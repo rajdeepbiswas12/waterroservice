@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
+import { AddressAutocompleteComponent } from '../../shared/address-autocomplete/address-autocomplete.component';
 
 @Component({
   selector: 'app-create-order',
@@ -29,7 +30,8 @@ import { UserService } from '../../../services/user.service';
     MatNativeDateModule,
     MatIconModule,
     MatDividerModule,
-    RouterModule
+    RouterModule,
+    AddressAutocompleteComponent
   ],
   templateUrl: './create-order.component.html',
   styleUrls: ['./create-order.component.scss']
@@ -60,6 +62,9 @@ export class CreateOrderComponent implements OnInit {
       customerPhone: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
       customerEmail: ['', [Validators.email]],
       customerAddress: ['', Validators.required],
+      city: [''],
+      state: [''],
+      postalCode: [''],
       latitude: [''],
       longitude: [''],
       serviceType: ['', Validators.required],
@@ -80,6 +85,17 @@ export class CreateOrderComponent implements OnInit {
         console.error('Error loading employees:', error);
         alert('Failed to load employees: ' + error.message);
       }
+    });
+  }
+
+  onAddressSelected(addressData: any) {
+    this.orderForm.patchValue({
+      customerAddress: addressData.address,
+      latitude: addressData.latitude,
+      longitude: addressData.longitude,
+      city: addressData.city,
+      state: addressData.state,
+      postalCode: addressData.postalCode
     });
   }
 

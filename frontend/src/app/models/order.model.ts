@@ -5,6 +5,9 @@ export interface Order {
   customerPhone: string;
   customerEmail?: string;
   customerAddress: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
   latitude?: number;
   longitude?: number;
   serviceType: string;

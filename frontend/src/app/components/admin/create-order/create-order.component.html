@@ -44,25 +44,37 @@
             </mat-form-field>
           </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Address</mat-label>
-            <textarea matInput formControlName="customerAddress" rows="3" required></textarea>
-            <mat-icon matPrefix>location_on</mat-icon>
-            <mat-error *ngIf="orderForm.get('customerAddress')?.hasError('required')">
-              Address is required
-            </mat-error>
-          </mat-form-field>
+          <app-address-autocomplete 
+            label="Service Address" 
+            placeholder="Start typing address..."
+            [initialValue]="orderForm.get('customerAddress')?.value"
+            (addressSelected)="onAddressSelected($event)">
+          </app-address-autocomplete>
+
+          <div class="form-row" *ngIf="orderForm.get('city')?.value">
+            <mat-form-field appearance="outline">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city" readonly>
+              <mat-icon matPrefix>location_city</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>State</mat-label>
+              <input matInput formControlName="state" readonly>
+              <mat-icon matPrefix>map</mat-icon>
+            </mat-form-field>
+          </div>
 
           <div class="form-row">
             <mat-form-field appearance="outline">
-              <mat-label>Latitude (Optional)</mat-label>
-              <input matInput formControlName="latitude" type="number" step="any">
+              <mat-label>Latitude</mat-label>
+              <input matInput formControlName="latitude" type="number" step="any" readonly>
               <mat-icon matPrefix>my_location</mat-icon>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
-              <mat-label>Longitude (Optional)</mat-label>
-              <input matInput formControlName="longitude" type="number" step="any">
+              <mat-label>Longitude</mat-label>
+              <input matInput formControlName="longitude" type="number" step="any" readonly>
               <mat-icon matPrefix>place</mat-icon>
             </mat-form-field>
           </div>

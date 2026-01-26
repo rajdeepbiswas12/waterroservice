@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-orders-list',
@@ -33,7 +34,8 @@ import { UserService } from '../../../services/user.service';
     MatDatepickerModule,
     MatNativeDateModule,
     MatTooltipModule,
-    RouterModule
+    RouterModule,
+    MatSnackBarModule
   ],
   templateUrl: './orders-list.component.html',
   styleUrls: ['./orders-list.component.scss']
@@ -52,7 +54,8 @@ export class OrdersListComponent implements OnInit {
 
   constructor(
     private orderService: OrderService,
-    private userService: UserService
+    private userService: UserService,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -116,5 +119,21 @@ export class OrdersListComponent implements OnInit {
         }
       });
     }
+  }
+
+  shareTrackingLink(orderId: number) {
+    const trackingUrl = `${window.location.origin}/track-order/${orderId}`;
+    navigator.clipboard.writeText(trackingUrl).then(() => {
+      this.snackBar.open('Tracking link copied to clipboard!', 'Close', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    }).catch(err => {
+      console.error('Failed to copy tracking link:', err);
+      this.snackBar.open('Failed to copy link', 'Close', {
+        duration: 3000
+      });
+    });
   }
 }

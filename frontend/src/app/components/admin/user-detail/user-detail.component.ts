@@ -191,7 +191,7 @@ export class UserDetailComponent implements OnInit {
     this.loading = true;
     const newPassword = this.passwordForm.value.newPassword;
     
-    this.userService.updateUser(this.userId, { password: newPassword }).subscribe({
+    this.userService.updateUser(this.userId, { password: newPassword } as any).subscribe({
       next: (response) => {
         this.snackBar.open('Password changed successfully!', 'Close', {
           duration: 3000,

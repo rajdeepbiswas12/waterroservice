@@ -14,10 +14,12 @@ import { UserDetailComponent } from './components/admin/user-detail/user-detail.
 import { EmployeeDashboardComponent } from './components/employee/employee-dashboard/employee-dashboard.component';
 import { EmployeeOrdersComponent } from './components/employee/employee-orders/employee-orders.component';
 import { OrderDetailComponent } from './components/employee/order-detail/order-detail.component';
+import { TrackOrderComponent } from './components/shared/track-order/track-order.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'track-order/:id', component: TrackOrderComponent },
   {
     path: 'admin',
     component: AdminDashboardComponent,

@@ -17,6 +17,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
+import { GoogleMapComponent } from '../../shared/google-map/google-map.component';
 
 @Component({
   selector: 'app-admin-order-detail',
@@ -37,7 +38,8 @@ import { UserService } from '../../../services/user.service';
     MatDividerModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatTabsModule
+    MatTabsModule,
+    GoogleMapComponent
   ],
   templateUrl: './admin-order-detail.component.html',
   styleUrls: ['./admin-order-detail.component.scss']
@@ -258,6 +260,21 @@ export class AdminOrderDetailComponent implements OnInit {
           });
           this.loading = false;
         }
+      });
+    }
+  }
+
+  copyLocation(): void {
+    if (this.order && this.order.latitude && this.order.longitude) {
+      const location = `${this.order.latitude}, ${this.order.longitude}`;
+      navigator.clipboard.writeText(location).then(() => {
+        this.snackBar.open('Location copied to clipboard', 'Close', {
+          duration: 2000,
+          horizontalPosition: 'end',
+          verticalPosition: 'top'
+        });
+      }).catch(err => {
+        console.error('Failed to copy location:', err);
       });
     }
   }

@@ -78,14 +78,31 @@
                   <strong>Notes:</strong>
                   <span>{{ order.notes }}</span>
                 </div>
-                <div class="info-row" *ngIf="order.latitude && order.longitude">
-                  <strong>Location:</strong>
-                  <a [href]="'https://www.google.com/maps?q=' + order.latitude + ',' + order.longitude" 
+              </div>
+              
+              <!-- Google Map Display -->
+              <div class="map-section" *ngIf="order.latitude && order.longitude">
+                <h3>
+                  <mat-icon>location_on</mat-icon>
+                  Service Location
+                </h3>
+                <app-google-map 
+                  [latitude]="order.latitude" 
+                  [longitude]="order.longitude"
+                  [address]="order.customerAddress"
+                  [zoom]="15">
+                </app-google-map>
+                <div class="map-actions">
+                  <a [href]="'https://www.google.com/maps/dir/?api=1&destination=' + order.latitude + ',' + order.longitude" 
                      target="_blank" 
-                     class="map-link">
-                    <mat-icon>location_on</mat-icon>
-                    View on Map
+                     mat-raised-button color="primary">
+                    <mat-icon>directions</mat-icon>
+                    Get Directions
                   </a>
+                  <button mat-raised-button (click)="copyLocation()">
+                    <mat-icon>content_copy</mat-icon>
+                    Copy Location
+                  </button>
                 </div>
               </div>
             </mat-card-content>
