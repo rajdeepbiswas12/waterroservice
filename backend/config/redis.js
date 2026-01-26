@@ -76,7 +76,7 @@ const cacheService = {
   // Set cached data with expiration
   async set(key, value, expirationInSeconds = 300) {
     try {
-      if (redis.status !== 'ready') return false;
+      if (!redis || redis.status !== 'ready') return false;
       await redis.setex(key, expirationInSeconds, JSON.stringify(value));
       return true;
     } catch (error) {
@@ -88,7 +88,7 @@ const cacheService = {
   // Delete cached data
   async del(key) {
     try {
-      if (redis.status !== 'ready') return false;
+      if (!redis || redis.status !== 'ready') return false;
       await redis.del(key);
       return true;
     } catch (error) {
@@ -100,7 +100,7 @@ const cacheService = {
   // Delete keys by pattern
   async delPattern(pattern) {
     try {
-      if (redis.status !== 'ready') return false;
+      if (!redis || redis.status !== 'ready') return false;
       const keys = await redis.keys(pattern);
       if (keys.length > 0) {
         await redis.del(...keys);
@@ -115,7 +115,7 @@ const cacheService = {
   // Flush all cache
   async flushAll() {
     try {
-      if (redis.status !== 'ready') return false;
+      if (!redis || redis.status !== 'ready') return false;
       await redis.flushall();
       return true;
     } catch (error) {
@@ -126,7 +126,7 @@ const cacheService = {
 
   // Check if Redis is available
   isAvailable() {
-    return redis.status === 'ready';
+    return redis && redis.status === 'ready';
   }
 };
 

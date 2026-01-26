@@ -31,7 +31,8 @@ fi
 echo ""
 
 echo -e "${BLUE}→ Step 2: Installing dependencies...${NC}"
-npm ci --production=false
+echo "  • Running npm install..."
+npm install --no-audit --prefer-offline
 echo -e "${GREEN}✓ Dependencies installed${NC}"
 echo ""
 
@@ -73,7 +74,8 @@ echo ""
 
 echo -e "${BLUE}→ Step 5: Installing production dependencies...${NC}"
 cd $BUILD_DIR
-npm ci --production
+echo "  • Running npm install --production..."
+npm install --production --no-audit --prefer-offline
 cd ..
 echo -e "${GREEN}✓ Production dependencies installed${NC}"
 echo ""

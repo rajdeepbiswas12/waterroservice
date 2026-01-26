@@ -30,7 +30,8 @@ fi
 echo ""
 
 echo -e "${BLUE}→ Step 2: Installing dependencies...${NC}"
-npm ci
+echo "  • Running npm install..."
+npm install --no-audit --prefer-offline
 echo -e "${GREEN}✓ Dependencies installed${NC}"
 echo ""
 
