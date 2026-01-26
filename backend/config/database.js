@@ -10,12 +10,37 @@ const sequelize = new Sequelize(
     port: process.env.DB_PORT || 3306,
     dialect: 'mysql',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
+    
+    // Connection pool configuration for scalability
     pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000
-    }
+      max: parseInt(process.env.DB_POOL_MAX) || 20, // Maximum connections
+      min: parseInt(process.env.DB_POOL_MIN) || 5,  // Minimum connections
+      acquire: 30000, // Maximum time to acquire connection
+      idle: 10000,    // Maximum time connection can be idle
+      evict: 1000     // Check for idle connections every second
+    },
+    
+    // Retry configuration
+    retry: {
+      max: 3
+    },
+    
+    // Query optimization
+    dialectOptions: {
+      connectTimeout: 10000,
+      // Enable multiple statements for migrations
+      multipleStatements: true
+    },
+    
+    // Define hooks for monitoring
+    define: {
+      timestamps: true,
+      underscored: false,
+      freezeTableName: true
+    },
+    
+    // Enable query benchmarking in development
+    benchmark: process.env.NODE_ENV === 'development'
   }
 );
 

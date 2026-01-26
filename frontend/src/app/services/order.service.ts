@@ -4,6 +4,29 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Order, OrderHistory, DashboardStats } from '../models/order.model';
 
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+  sortBy?: string;
+  sortOrder?: 'ASC' | 'DESC';
+  status?: string;
+  priority?: string;
+  search?: string;
+}
+
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,16 +35,20 @@ export class OrderService {
 
   constructor(private http: HttpClient) {}
 
-  getOrders(filters?: any): Observable<any> {
-    let params = new HttpParams();
-    if (filters) {
-      Object.keys(filters).forEach(key => {
-        if (filters[key]) {
-          params = params.append(key, filters[key]);
-        }
-      });
+  getOrders(params?: PaginationParams): Observable<PaginatedResponse<Order>> {
+    let httpParams = new HttpParams();
+    
+    if (params) {
+      if (params.page) httpParams = httpParams.set('page', params.page.toString());
+      if (params.limit) httpParams = httpParams.set('limit', params.limit.toString());
+      if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+      if (params.sortOrder) httpParams = httpParams.set('sortOrder', params.sortOrder);
+      if (params.status) httpParams = httpParams.set('status', params.status);
+      if (params.priority) httpParams = httpParams.set('priority', params.priority);
+      if (params.search) httpParams = httpParams.set('search', params.search);
     }
-    return this.http.get<any>(this.apiUrl, { params });
+    
+    return this.http.get<PaginatedResponse<Order>>(this.apiUrl, { params: httpParams });
   }
 
   getOrder(id: number): Observable<any> {

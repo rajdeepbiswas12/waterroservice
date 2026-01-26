@@ -1,6 +1,7 @@
 const { Order, OrderHistory, User } = require('../models');
 const { Op } = require('sequelize');
 const { sendOrderAssignmentNotification, sendOrderStatusNotification } = require('../utils/whatsapp');
+const { getPaginationParams, formatPaginationResponse, buildSort } = require('../utils/pagination');
 
 // Generate unique order number
 const generateOrderNumber = () => {
@@ -85,7 +86,8 @@ exports.createOrder = async (req, res) => {
 // @access  Private
 exports.getOrders = async (req, res) => {
   try {
-    const { status, priority, assignedToId, startDate, endDate } = req.query;
+    const { page, limit, offset } = getPaginationParams(req.query);
+    const { status, priority, assignedToId, startDate, endDate, search } = req.query;
     
     const where = {};
     
@@ -98,14 +100,31 @@ exports.getOrders = async (req, res) => {
       if (startDate) where.createdAt[Op.gte] = new Date(startDate);
       if (endDate) where.createdAt[Op.lte] = new Date(endDate);
     }
+    
+    // Search across multiple fields
+    if (search) {
+      where[Op.or] = [
+        { orderNumber: { [Op.like]: `%${search}%` } },
+        { customerName: { [Op.like]: `%${search}%` } },
+        { customerPhone: { [Op.like]: `%${search}%` } },
+        { customerEmail: { [Op.like]: `%${search}%` } },
+        { customerAddress: { [Op.like]: `%${search}%` } }
+      ];
+    }
 
     // If employee, only show their orders
     if (req.user.role === 'employee') {
       where.assignedToId = req.user.id;
     }
 
-    const orders = await Order.findAll({
+    // Build sort options
+    const order = buildSort(req.query, 'createdAt');
+
+    const { count, rows } = await Order.findAndCountAll({
       where,
+      limit,
+      offset,
+      order,
       include: [
         {
           model: User,
@@ -117,15 +136,10 @@ exports.getOrders = async (req, res) => {
           as: 'assignedBy',
           attributes: ['id', 'name']
         }
-      ],
-      order: [['createdAt', 'DESC']]
+      ]
     });
 
-    res.status(200).json({
-      success: true,
-      count: orders.length,
-      data: orders
-    });
+    res.status(200).json(formatPaginationResponse(rows, count, page, limit));
   } catch (error) {
     res.status(500).json({
       success: false,
