@@ -20,7 +20,9 @@ NC='\033[0m'
 # Load environment variables
 if [ -f .env ]; then
   echo -e "${BLUE}→ Loading environment variables from .env...${NC}"
-  export $(grep -v '^#' .env | xargs)
+  set -a
+  source .env
+  set +a
   echo -e "${GREEN}✓ Environment loaded${NC}"
 else
   echo -e "${YELLOW}⚠ .env file not found, using default configuration${NC}"
