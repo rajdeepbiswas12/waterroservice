@@ -1,4 +1,4 @@
-const { sequelize } = require('../models');
+const { sequelize } = require('../config/database');
 
 // Setup before all tests
 beforeAll(async () => {
