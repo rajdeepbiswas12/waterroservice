@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://artificial-unfashionable-parthenia.ngrok-free.dev/api',
+  apiUrl: 'http://localhost:5000/api',
   googleMapsApiKey: 'AIzaSyDX8vVLqpYY6rqLXqvqvqvqvqvqvqvqvqv'
 };
