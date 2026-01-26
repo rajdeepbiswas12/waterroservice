@@ -1,4 +1,4 @@
-const { Order, OrderHistory, User } = require('../models');
+const { Order, OrderHistory, User, Customer } = require('../models');
 const { Op } = require('sequelize');
 const { sendOrderAssignmentNotification, sendOrderStatusNotification } = require('../utils/whatsapp');
 const { getPaginationParams, formatPaginationResponse, buildSort } = require('../utils/pagination');
@@ -135,6 +135,11 @@ exports.getOrders = async (req, res) => {
           model: User,
           as: 'assignedBy',
           attributes: ['id', 'name']
+        },
+        {
+          model: Customer,
+          as: 'customer',
+          attributes: ['id', 'customerNumber', 'name', 'phone', 'email', 'address', 'city']
         }
       ]
     });
@@ -164,6 +169,10 @@ exports.getOrder = async (req, res) => {
           model: User,
           as: 'assignedBy',
           attributes: ['id', 'name']
+        },
+        {
+          model: Customer,
+          as: 'customer'
         },
         {
           model: OrderHistory,

@@ -27,6 +27,8 @@ require('./config/redis');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const orderRoutes = require('./routes/orders');
+const customerRoutes = require('./routes/customerRoutes');
+const amcRoutes = require('./routes/amcRoutes');
 
 const app = express();
 
@@ -89,6 +91,8 @@ app.use('/api/', apiLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/amc', amcRoutes);
 
 // Health check route with detailed status
 app.get('/api/health', async (req, res) => {

@@ -12,13 +12,23 @@ const Order = sequelize.define('Order', {
     allowNull: false,
     unique: true
   },
+  customerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: 'customers',
+      key: 'id'
+    },
+    comment: 'Link to customer table'
+  },
+  // Legacy fields - kept for backward compatibility during migration
   customerName: {
     type: DataTypes.STRING(100),
-    allowNull: false
+    allowNull: true
   },
   customerPhone: {
     type: DataTypes.STRING(20),
-    allowNull: false
+    allowNull: true
   },
   customerEmail: {
     type: DataTypes.STRING(100),
@@ -29,7 +39,7 @@ const Order = sequelize.define('Order', {
   },
   customerAddress: {
     type: DataTypes.TEXT,
-    allowNull: false
+    allowNull: true
   },
   city: {
     type: DataTypes.STRING(100),

@@ -1,0 +1,146 @@
+<div class="container-fluid py-4">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <div class="d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">
+            <mat-icon class="align-middle me-2">people</mat-icon>
+            Customers
+          </h4>
+          <button mat-raised-button color="primary" (click)="addCustomer()">
+            <mat-icon>add</mat-icon>
+            Add Customer
+          </button>
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Filters -->
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <mat-form-field class="w-100">
+            <mat-label>Search</mat-label>
+            <input matInput [(ngModel)]="searchText" (keyup.enter)="onSearch()" 
+                   placeholder="Name, phone, email, customer number...">
+            <button mat-icon-button matSuffix (click)="onSearch()">
+              <mat-icon>search</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+        <div class="col-md-3">
+          <mat-form-field class="w-100">
+            <mat-label>Status</mat-label>
+            <mat-select [(ngModel)]="statusFilter" (selectionChange)="onFilterChange()">
+              <mat-option value="">All</mat-option>
+              <mat-option value="active">Active</mat-option>
+              <mat-option value="inactive">Inactive</mat-option>
+              <mat-option value="blocked">Blocked</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table mat-table [dataSource]="customers" class="w-100">
+          <!-- Customer Number -->
+          <ng-container matColumnDef="customerNumber">
+            <th mat-header-cell *matHeaderCellDef>Customer ID</th>
+            <td mat-cell *matCellDef="let customer">
+              <strong>{{ customer.customerNumber }}</strong>
+            </td>
+          </ng-container>
+
+          <!-- Name -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let customer">{{ customer.name }}</td>
+          </ng-container>
+
+          <!-- Phone -->
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef>Phone</th>
+            <td mat-cell *matCellDef="let customer">{{ customer.phone }}</td>
+          </ng-container>
+
+          <!-- Email -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let customer">{{ customer.email || '-' }}</td>
+          </ng-container>
+
+          <!-- City -->
+          <ng-container matColumnDef="city">
+            <th mat-header-cell *matHeaderCellDef>City</th>
+            <td mat-cell *matCellDef="let customer">{{ customer.city || '-' }}</td>
+          </ng-container>
+
+          <!-- Status -->
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let customer">
+              <mat-chip [color]="getStatusColor(customer.status || '')" selected>
+                {{ customer.status }}
+              </mat-chip>
+            </td>
+          </ng-container>
+
+          <!-- Total Bookings -->
+          <ng-container matColumnDef="totalBookings">
+            <th mat-header-cell *matHeaderCellDef>Bookings</th>
+            <td mat-cell *matCellDef="let customer">{{ customer.totalBookings || 0 }}</td>
+          </ng-container>
+
+          <!-- Total Spent -->
+          <ng-container matColumnDef="totalSpent">
+            <th mat-header-cell *matHeaderCellDef>Total Spent</th>
+            <td mat-cell *matCellDef="let customer">₹{{ customer.totalSpent || 0 }}</td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let customer">
+              <button mat-icon-button color="primary" (click)="viewCustomer(customer)" 
+                      matTooltip="View Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button color="accent" (click)="editCustomer(customer)" 
+                      matTooltip="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="deleteCustomer(customer)" 
+                      matTooltip="Delete">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </div>
+
+      <!-- Paginator -->
+      <mat-paginator 
+        [length]="totalCustomers"
+        [pageSize]="pageSize"
+        [pageIndex]="pageIndex"
+        [pageSizeOptions]="[5, 10, 25, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-4">
+        <mat-spinner [diameter]="50" class="mx-auto"></mat-spinner>
+      </div>
+
+      <!-- No Data -->
+      <div *ngIf="!loading && customers.length === 0" class="text-center py-4">
+        <p class="text-muted">No customers found</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

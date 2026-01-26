@@ -31,7 +31,10 @@ export class AdminDashboardComponent implements OnInit {
     { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
     { icon: 'assignment', label: 'Orders', route: '/admin/orders' },
     { icon: 'add_circle', label: 'Create Order', route: '/admin/orders/create' },
-    { icon: 'people', label: 'Employees', route: '/admin/employees' },
+    { icon: 'people', label: 'Customers', route: '/admin/customers' },
+    { icon: 'verified_user', label: 'AMC Plans', route: '/admin/amc/plans' },
+    { icon: 'card_membership', label: 'AMC Subscriptions', route: '/admin/amc/subscriptions' },
+    { icon: 'group', label: 'Employees', route: '/admin/employees' },
     { icon: 'admin_panel_settings', label: 'Admin Management', route: '/admin/admins' },
   ];
 

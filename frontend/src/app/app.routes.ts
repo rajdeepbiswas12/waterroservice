@@ -15,6 +15,10 @@ import { EmployeeDashboardComponent } from './components/employee/employee-dashb
 import { EmployeeOrdersComponent } from './components/employee/employee-orders/employee-orders.component';
 import { OrderDetailComponent } from './components/employee/order-detail/order-detail.component';
 import { TrackOrderComponent } from './components/shared/track-order/track-order.component';
+import { CustomerListComponent } from './components/customers/customer-list/customer-list.component';
+import { CustomerFormComponent } from './components/customers/customer-form/customer-form.component';
+import { AmcPlansComponent } from './components/amc/amc-plans/amc-plans.component';
+import { AmcSubscriptionsComponent } from './components/amc/amc-subscriptions/amc-subscriptions.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -37,6 +41,12 @@ export const routes: Routes = [
       { path: 'admins', component: AdminManagementComponent },
       { path: 'admins/create', component: CreateAdminComponent },
       { path: 'admins/:id', component: UserDetailComponent },
+      { path: 'customers', component: CustomerListComponent },
+      { path: 'customers/new', component: CustomerFormComponent },
+      { path: 'customers/:id', component: CustomerFormComponent },
+      { path: 'customers/:id/edit', component: CustomerFormComponent },
+      { path: 'amc/plans', component: AmcPlansComponent },
+      { path: 'amc/subscriptions', component: AmcSubscriptionsComponent },
     ]
   },
   {

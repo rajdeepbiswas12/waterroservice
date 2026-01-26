@@ -12,47 +12,54 @@
         <div class="form-section">
           <h3>Customer Information</h3>
           
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Customer Name</mat-label>
-            <input matInput formControlName="customerName" required>
-            <mat-icon matPrefix>person</mat-icon>
-            <mat-error *ngIf="orderForm.get('customerName')?.hasError('required')">
-              Name is required
-            </mat-error>
-          </mat-form-field>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Phone Number</mat-label>
-              <input matInput formControlName="customerPhone" required>
-              <mat-icon matPrefix>phone</mat-icon>
-              <mat-error *ngIf="orderForm.get('customerPhone')?.hasError('required')">
-                Phone is required
-              </mat-error>
-              <mat-error *ngIf="orderForm.get('customerPhone')?.hasError('pattern')">
-                Invalid phone format
-              </mat-error>
+          <div *ngIf="!selectedCustomer">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Search Customer</mat-label>
+              <input matInput 
+                     formControlName="customerSearch" 
+                     [matAutocomplete]="auto"
+                     placeholder="Search by name, phone, or email">
+              <mat-icon matPrefix>search</mat-icon>
+              <mat-autocomplete #auto="matAutocomplete" 
+                                [displayWith]="displayCustomer"
+                                (optionSelected)="onCustomerSelected($event.option.value)">
+                <mat-option *ngFor="let customer of filteredCustomers | async" [value]="customer">
+                  <div class="customer-option">
+                    <strong>{{ customer.name }}</strong>
+                    <span class="text-muted">{{ customer.phone }}</span>
+                  </div>
+                  <div class="text-small text-muted">{{ customer.address }}</div>
+                </mat-option>
+              </mat-autocomplete>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Email (Optional)</mat-label>
-              <input matInput formControlName="customerEmail" type="email">
-              <mat-icon matPrefix>email</mat-icon>
-              <mat-error *ngIf="orderForm.get('customerEmail')?.hasError('email')">
-                Invalid email format
-              </mat-error>
-            </mat-form-field>
+            <div class="text-center mt-2">
+              <a routerLink="/admin/customers/new" mat-button color="primary">
+                <mat-icon>add</mat-icon>
+                Add New Customer
+              </a>
+            </div>
           </div>
 
-          <!-- Google Maps integration commented out -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Service Address</mat-label>
-            <textarea matInput formControlName="customerAddress" rows="3" placeholder="Enter full address" required></textarea>
-            <mat-icon matPrefix>location_on</mat-icon>
-            <mat-error *ngIf="orderForm.get('customerAddress')?.hasError('required')">
-              Address is required
-            </mat-error>
-          </mat-form-field>
+          <div *ngIf="selectedCustomer" class="selected-customer">
+            <mat-card>
+              <mat-card-content>
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h4><mat-icon class="align-middle">person</mat-icon> {{ selectedCustomer.name }}</h4>
+                    <p class="mb-1"><mat-icon class="small-icon">phone</mat-icon> {{ selectedCustomer.phone }}</p>
+                    <p class="mb-1" *ngIf="selectedCustomer.email">
+                      <mat-icon class="small-icon">email</mat-icon> {{ selectedCustomer.email }}
+                    </p>
+                    <p class="mb-1"><mat-icon class="small-icon">location_on</mat-icon> {{ selectedCustomer.address }}</p>
+                  </div>
+                  <button mat-icon-button (click)="clearCustomer()" type="button">
+                    <mat-icon>clear</mat-icon>
+                  </button>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
         </div>
 
         <mat-divider></mat-divider>

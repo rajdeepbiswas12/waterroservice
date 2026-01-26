@@ -11,9 +11,13 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
+import { CustomerService } from '../../../services/customer.service';
 import { NotificationService } from '../../../services/notification.service';
+import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
 // import { AddressAutocompleteComponent } from '../../shared/address-autocomplete/address-autocomplete.component'; // Commented out Google Maps integration
 
 @Component({
@@ -31,6 +35,7 @@ import { NotificationService } from '../../../services/notification.service';
     MatNativeDateModule,
     MatIconModule,
     MatDividerModule,
+    MatAutocompleteModule,
     RouterModule
     // AddressAutocompleteComponent // Commented out Google Maps integration
   ],
@@ -40,6 +45,9 @@ import { NotificationService } from '../../../services/notification.service';
 export class CreateOrderComponent implements OnInit {
   orderForm!: FormGroup;
   employees: any[] = [];
+  customers: any[] = [];
+  filteredCustomers: Observable<any[]> = of([]);
+  selectedCustomer: any = null;
   loading = false;
 
   serviceTypes = ['Installation', 'Repair', 'Maintenance', 'Filter Change', 'AMC', 'Inspection'];
@@ -49,6 +57,7 @@ export class CreateOrderComponent implements OnInit {
     private fb: FormBuilder,
     private orderService: OrderService,
     private userService: UserService,
+    private customerService: CustomerService,
     private router: Router,
     private notificationService: NotificationService
   ) {}
@@ -60,15 +69,8 @@ export class CreateOrderComponent implements OnInit {
 
   initForm() {
     this.orderForm = this.fb.group({
-      customerName: ['', Validators.required],
-      customerPhone: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
-      customerEmail: ['', [Validators.email]],
-      customerAddress: ['', Validators.required],
-      // city: [''], // Removed Google Maps integration
-      // state: [''], // Removed Google Maps integration
-      // postalCode: [''], // Removed Google Maps integration
-      // latitude: [''], // Removed Google Maps integration
-      // longitude: [''], // Removed Google Maps integration
+      customerId: ['', Validators.required],
+      customerSearch: [''],
       serviceType: ['', Validators.required],
       priority: ['medium', Validators.required],
       description: [''],
@@ -76,6 +78,33 @@ export class CreateOrderComponent implements OnInit {
       assignedToId: [''],
       notes: ['']
     });
+
+    // Setup customer search autocomplete
+    this.filteredCustomers = this.orderForm.get('customerSearch')!.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(value => {
+        if (typeof value === 'string' && value.length >= 2) {
+          return this.customerService.getAllCustomers(1, 10, value);
+        }
+        return of({ data: [] });
+      }),
+      switchMap(response => of(response.data || []))
+    );
+  }
+
+  displayCustomer(customer: any): string {
+    return customer ? `${customer.name} (${customer.phone})` : '';
+  }
+
+  onCustomerSelected(customer: any): void {
+    this.selectedCustomer = customer;
+    this.orderForm.patchValue({ customerId: customer.id });
+  }
+
+  clearCustomer(): void {
+    this.selectedCustomer = null;
+    this.orderForm.patchValue({ customerId: '', customerSearch: '' });
   }
 
   loadEmployees() {

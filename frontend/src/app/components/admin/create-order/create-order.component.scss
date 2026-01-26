@@ -51,6 +51,48 @@ mat-divider {
   margin-top: 20px;
 }
 
+.selected-customer {
+  margin-bottom: 20px;
+
+  mat-card {
+    background-color: #f5f5f5;
+  }
+
+  h4 {
+    margin: 0 0 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+  }
+
+  .small-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.customer-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.text-muted {
+  color: #6c757d;
+}
+
+.text-small {
+  font-size: 0.85rem;
+}
+
 /* Tablet and mobile responsiveness */
 @media (max-width: 768px) {
   .create-order-container {
