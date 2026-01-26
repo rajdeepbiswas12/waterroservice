@@ -1,51 +1,70 @@
 const Redis = require('ioredis');
 require('dotenv').config();
 
+// Check if Redis is enabled
+const REDIS_ENABLED = process.env.REDIS_ENABLED !== 'false';
+
 // Redis configuration with fallback
 const redisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
   password: process.env.REDIS_PASSWORD || undefined,
   retryStrategy: (times) => {
+    // Only retry if Redis is enabled
+    if (!REDIS_ENABLED) return null;
     const delay = Math.min(times * 50, 2000);
     return delay;
   },
   maxRetriesPerRequest: 3,
   enableReadyCheck: true,
-  lazyConnect: true
+  lazyConnect: true,
+  enableOfflineQueue: false
 };
 
-// Create Redis client
-const redis = new Redis(redisConfig);
+// Create Redis client only if enabled
+let redis = null;
 
-// Event handlers
-redis.on('connect', () => {
-  console.log('✓ Redis client connected');
-});
+if (REDIS_ENABLED) {
+  redis = new Redis(redisConfig);
 
-redis.on('ready', () => {
-  console.log('✓ Redis client ready');
-});
+  // Event handlers
+  redis.on('connect', () => {
+    console.log('✓ Redis client connected');
+  });
 
-redis.on('error', (err) => {
-  console.warn('⚠ Redis connection error (app will work without caching):', err.message);
-});
+  redis.on('ready', () => {
+    console.log('✓ Redis client ready');
+  });
 
-redis.on('close', () => {
-  console.log('✗ Redis connection closed');
-});
+  redis.on('error', (err) => {
+    // Only log first error to avoid spam
+    if (!redis._errorLogged) {
+      console.warn('⚠ Redis connection error (app will work without caching):', err.message);
+      redis._errorLogged = true;
+    }
+  });
 
-// Connect to Redis (non-blocking)
-redis.connect().catch(err => {
-  console.warn('⚠ Redis not available, caching disabled:', err.message);
-});
+  redis.on('close', () => {
+    if (!redis._closeLogged) {
+      console.log('✗ Redis connection closed - caching disabled');
+      redis._closeLogged = true;
+    }
+  });
+
+  // Connect to Redis (non-blocking)
+  redis.connect().catch(err => {
+    console.warn('⚠ Redis not available, caching disabled');
+  });
+} else {
+  console.log('ℹ Redis caching disabled (set REDIS_ENABLED=true to enable)');
+}
 
 // Cache wrapper with fallback
 const cacheService = {
   // Get cached data
   async get(key) {
     try {
-      if (redis.status !== 'ready') return null;
+      if (!redis || redis.status !== 'ready') return null;
       const data = await redis.get(key);
       return data ? JSON.parse(data) : null;
     } catch (error) {
