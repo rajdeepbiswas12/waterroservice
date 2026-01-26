@@ -3,8 +3,9 @@ const { sequelize } = require('../config/database');
 // Setup before all tests
 beforeAll(async () => {
   try {
-    // Sync database for testing
-    await sequelize.sync({ force: false });
+    // Sync database for testing - use force: true to drop and recreate tables
+    // This ensures a clean slate for tests and avoids duplicate index errors
+    await sequelize.sync({ force: true });
     console.log('✅ Test database synchronized');
   } catch (error) {
     console.error('❌ Test database setup failed:', error);
