@@ -44,12 +44,34 @@
             </mat-form-field>
           </div>
 
-          <app-address-autocomplete 
-            label="Service Address" 
-            placeholder="Start typing address..."
-            [initialValue]="orderForm.get('customerAddress')?.value"
-            (addressSelected)="onAddressSelected($event)">
-          </app-address-autocomplete>
+          <div class="address-section">
+            <mat-card class="info-card" style="background: #fff3cd; margin-bottom: 16px;">
+              <mat-card-content style="display: flex; align-items: center; gap: 10px;">
+                <mat-icon color="warn">info</mat-icon>
+                <span style="font-size: 13px; color: #856404;">
+                  <strong>Google Maps Setup Required:</strong> Replace the API key in environment.ts with your own key from 
+                  <a href="https://console.cloud.google.com/" target="_blank" style="color: #0066cc;">Google Cloud Console</a> 
+                  to enable address autocomplete.
+                </span>
+              </mat-card-content>
+            </mat-card>
+
+            <app-address-autocomplete 
+              label="Service Address" 
+              placeholder="Start typing address..."
+              [initialValue]="orderForm.get('customerAddress')?.value"
+              (addressSelected)="onAddressSelected($event)">
+            </app-address-autocomplete>
+
+            <mat-form-field appearance="outline" class="full-width" *ngIf="!orderForm.get('customerAddress')?.value">
+              <mat-label>Or enter address manually</mat-label>
+              <textarea matInput formControlName="customerAddress" rows="2" placeholder="Enter full address"></textarea>
+              <mat-icon matPrefix>location_on</mat-icon>
+              <mat-error *ngIf="orderForm.get('customerAddress')?.hasError('required')">
+                Address is required
+              </mat-error>
+            </mat-form-field>
+          </div>
 
           <div class="form-row" *ngIf="orderForm.get('city')?.value">
             <mat-form-field appearance="outline">
