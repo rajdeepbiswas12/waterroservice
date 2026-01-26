@@ -5,6 +5,7 @@ import { AdminDashboardComponent } from './components/admin/admin-dashboard/admi
 import { DashboardOverviewComponent } from './components/admin/dashboard-overview/dashboard-overview.component';
 import { OrdersListComponent } from './components/admin/orders-list/orders-list.component';
 import { CreateOrderComponent } from './components/admin/create-order/create-order.component';
+import { AdminOrderDetailComponent } from './components/admin/admin-order-detail/admin-order-detail.component';
 import { EmployeesListComponent } from './components/admin/employees-list/employees-list.component';
 import { CreateEmployeeComponent } from './components/admin/create-employee/create-employee.component';
 import { AdminManagementComponent } from './components/admin/admin-management/admin-management.component';
@@ -26,6 +27,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: DashboardOverviewComponent },
       { path: 'orders', component: OrdersListComponent },
       { path: 'orders/create', component: CreateOrderComponent },
+      { path: 'orders/:id', component: AdminOrderDetailComponent },
       { path: 'employees', component: EmployeesListComponent },
       { path: 'employees/create', component: CreateEmployeeComponent },
       { path: 'admins', component: AdminManagementComponent },
