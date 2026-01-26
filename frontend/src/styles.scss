@@ -1,0 +1,66 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+$my-primary: mat.define-palette(mat.$indigo-palette, 500);
+$my-accent: mat.define-palette(mat.$pink-palette, A200, A100, A400);
+$my-warn: mat.define-palette(mat.$red-palette);
+
+$my-theme: mat.define-light-theme((
+  color: (
+    primary: $my-primary,
+    accent: $my-accent,
+    warn: $my-warn,
+  )
+));
+
+@include mat.all-component-themes($my-theme);
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #fafafa;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Utility Classes */
+.full-width {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
