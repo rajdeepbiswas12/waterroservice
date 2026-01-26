@@ -293,3 +293,155 @@
     }
   }
 }
+
+// Monthly Reports Section
+.monthly-reports-section {
+  margin-top: 40px;
+  padding-top: 40px;
+  border-top: 2px solid #e0e0e0;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+
+    h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      mat-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: #667eea;
+      }
+    }
+
+    .months-selector {
+      min-width: 200px;
+      margin: 0;
+    }
+  }
+
+  .monthly-charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+
+    .chart-card {
+      &.large {
+        grid-column: span 2;
+      }
+
+      mat-card-header {
+        mat-card-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #333;
+        }
+      }
+
+      mat-card-content {
+        padding: 20px;
+        
+        .chart-container {
+          height: 350px;
+          position: relative;
+
+          canvas {
+            max-height: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  .loading-container {
+    padding: 60px 0;
+  }
+}
+
+// Responsive monthly reports
+@media (max-width: 1200px) {
+  .monthly-reports-section {
+    .monthly-charts-grid {
+      grid-template-columns: 1fr;
+
+      .chart-card {
+        &.large {
+          grid-column: span 1;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .monthly-reports-section {
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      h2 {
+        font-size: 24px;
+
+        mat-icon {
+          font-size: 28px;
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      .months-selector {
+        width: 100%;
+      }
+    }
+
+    .monthly-charts-grid {
+      .chart-card {
+        mat-card-content {
+          .chart-container {
+            height: 300px;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .monthly-reports-section {
+    margin-top: 30px;
+    padding-top: 30px;
+
+    .section-header {
+      margin-bottom: 20px;
+
+      h2 {
+        font-size: 20px;
+      }
+    }
+
+    .monthly-charts-grid {
+      gap: 15px;
+
+      .chart-card {
+        mat-card-content {
+          padding: 15px;
+
+          .chart-container {
+            height: 250px;
+          }
+        }
+      }
+    }
+  }
+}

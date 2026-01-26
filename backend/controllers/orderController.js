@@ -580,3 +580,170 @@ exports.getDashboardStats = async (req, res) => {
     });
   }
 };
+
+// Get monthly statistics for reports
+exports.getMonthlyStats = async (req, res) => {
+  try {
+    const { sequelize } = require('../config/database');
+    const { months = 6 } = req.query; // Default to last 6 months
+
+    // Calculate date range
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - parseInt(months));
+
+    // Get orders per month
+    const ordersPerMonth = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        }
+      },
+      group: [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m')],
+      order: [[sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'ASC']],
+      raw: true
+    });
+
+    // Get completed orders per month
+    const completedPerMonth = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE_FORMAT', sequelize.col('completedDate'), '%Y-%m'), 'month'],
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        status: 'completed',
+        completedDate: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate,
+          [Op.ne]: null
+        }
+      },
+      group: [sequelize.fn('DATE_FORMAT', sequelize.col('completedDate'), '%Y-%m')],
+      order: [[sequelize.fn('DATE_FORMAT', sequelize.col('completedDate'), '%Y-%m'), 'ASC']],
+      raw: true
+    });
+
+    // Get orders by service type per month
+    const serviceTypePerMonth = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        'serviceType',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        }
+      },
+      group: [
+        sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'),
+        'serviceType'
+      ],
+      order: [[sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'ASC']],
+      raw: true
+    });
+
+    // Get revenue per month (assuming estimatedCost field)
+    const revenuePerMonth = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        [sequelize.fn('SUM', sequelize.col('estimatedCost')), 'revenue'],
+        [sequelize.fn('AVG', sequelize.col('estimatedCost')), 'avgCost']
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        },
+        estimatedCost: {
+          [Op.ne]: null
+        }
+      },
+      group: [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m')],
+      order: [[sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'ASC']],
+      raw: true
+    });
+
+    // Get orders by status per month
+    const statusPerMonth = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'month'],
+        'status',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate
+        }
+      },
+      group: [
+        sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'),
+        'status'
+      ],
+      order: [[sequelize.fn('DATE_FORMAT', sequelize.col('createdAt'), '%Y-%m'), 'ASC']],
+      raw: true
+    });
+
+    // Get employee performance per month
+    const employeePerformance = await Order.findAll({
+      attributes: [
+        [sequelize.fn('DATE_FORMAT', sequelize.col('Order.completedDate'), '%Y-%m'), 'month'],
+        'assignedToId',
+        [sequelize.fn('COUNT', sequelize.col('Order.id')), 'completedCount']
+      ],
+      where: {
+        status: 'completed',
+        completedDate: {
+          [Op.gte]: startDate,
+          [Op.lte]: endDate,
+          [Op.ne]: null
+        },
+        assignedToId: {
+          [Op.ne]: null
+        }
+      },
+      include: [
+        {
+          model: User,
+          as: 'assignedTo',
+          attributes: ['id', 'name']
+        }
+      ],
+      group: [
+        sequelize.fn('DATE_FORMAT', sequelize.col('Order.completedDate'), '%Y-%m'),
+        'assignedToId'
+      ],
+      order: [[sequelize.fn('DATE_FORMAT', sequelize.col('Order.completedDate'), '%Y-%m'), 'ASC']],
+      raw: true
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        ordersPerMonth,
+        completedPerMonth,
+        serviceTypePerMonth,
+        revenuePerMonth,
+        statusPerMonth,
+        employeePerformance,
+        dateRange: {
+          start: startDate,
+          end: endDate,
+          months: parseInt(months)
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

@@ -9,13 +9,15 @@ const {
   updateOrderStatus,
   deleteOrder,
   getOrderHistory,
-  getDashboardStats
+  getDashboardStats,
+  getMonthlyStats
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/auth');
 
 router.use(protect);
 
 router.get('/dashboard/stats', authorize('admin'), getDashboardStats);
+router.get('/dashboard/monthly-stats', authorize('admin'), getMonthlyStats);
 router.get('/', getOrders);
 router.get('/:id', getOrder);
 router.get('/:id/history', getOrderHistory);

@@ -55,4 +55,9 @@ export class OrderService {
   getDashboardStats(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/dashboard/stats`);
   }
+
+  getMonthlyStats(months: number = 6): Observable<any> {
+    let params = new HttpParams().set('months', months.toString());
+    return this.http.get<any>(`${this.apiUrl}/dashboard/monthly-stats`, { params });
+  }
 }

@@ -67,6 +67,84 @@
     </mat-card-content>
   </mat-card>
 
+  <!-- Monthly Reports Section -->
+  <div class="monthly-reports-section">
+    <div class="section-header">
+      <h2>
+        <mat-icon>insert_chart</mat-icon>
+        Monthly Reports & Statistics
+      </h2>
+      <mat-form-field appearance="outline" class="months-selector">
+        <mat-label>Time Period</mat-label>
+        <mat-select [(value)]="selectedMonths" (selectionChange)="onMonthsChange($event.value)">
+          <mat-option [value]="3">Last 3 Months</mat-option>
+          <mat-option [value]="6">Last 6 Months</mat-option>
+          <mat-option [value]="12">Last 12 Months</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <div *ngIf="!loadingMonthly; else monthlyLoadingTemplate">
+      <!-- Monthly Charts Grid -->
+      <div class="monthly-charts-grid">
+        <!-- Monthly Orders Trend -->
+        <mat-card class="chart-card large">
+          <mat-card-header>
+            <mat-card-title>Orders Trend</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas id="monthlyOrdersChart"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Monthly Revenue -->
+        <mat-card class="chart-card large" *ngIf="monthlyStats?.revenuePerMonth?.length > 0">
+          <mat-card-header>
+            <mat-card-title>Revenue Overview</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas id="monthlyRevenueChart"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Service Type Distribution -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>Service Types</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas id="serviceTypeChart"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Completion Rate -->
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>Completion Rate</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas id="completionRateChart"></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <ng-template #monthlyLoadingTemplate>
+      <div class="loading-container">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading monthly statistics...</p>
+      </div>
+    </ng-template>
+  </div>
+
   <!-- Quick Actions -->
   <div class="quick-actions">
     <button mat-raised-button color="primary" routerLink="/admin/orders/create">
