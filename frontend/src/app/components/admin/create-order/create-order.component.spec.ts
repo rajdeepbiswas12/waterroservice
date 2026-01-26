@@ -44,6 +44,9 @@ describe('CreateOrderComponent', () => {
     userService = TestBed.inject(UserService) as jasmine.SpyObj<UserService>;
     router = TestBed.inject(Router);
     
+    // Setup default mock for getAvailableEmployees
+    userService.getAvailableEmployees.and.returnValue(of(mockEmployees));
+    
     fixture = TestBed.createComponent(CreateOrderComponent);
     component = fixture.componentInstance;
   });

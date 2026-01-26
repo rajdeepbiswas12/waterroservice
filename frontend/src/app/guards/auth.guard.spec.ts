@@ -29,7 +29,7 @@ describe('AuthGuard', () => {
     authServiceSpy = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     routerSpy = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
-    mockRoute = {} as ActivatedRouteSnapshot;
+    mockRoute = { data: {} } as ActivatedRouteSnapshot;
     mockState = { url: '/admin/dashboard' } as RouterStateSnapshot;
   });
 
@@ -38,96 +38,94 @@ describe('AuthGuard', () => {
   });
 
   describe('canActivate', () => {
-    it('should allow access when user is authenticated', (done) => {
+    it('should allow access when user is authenticated', () => {
       const mockUser = {
         id: 1,
         name: 'Test User',
         email: 'test@test.com',
-        role: 'admin'
+        phone: '1234567890',
+        role: 'admin' as 'admin' | 'employee',
+        isActive: true
       };
 
-      Object.defineProperty(authServiceSpy, 'currentUser', {
-        get: () => of(mockUser)
+      Object.defineProperty(authServiceSpy, 'currentUserValue', {
+        get: () => mockUser
       });
 
-      guard.canActivate(mockRoute, mockState).subscribe(result => {
-        expect(result).toBe(true);
-        expect(routerSpy.navigate).not.toHaveBeenCalled();
-        done();
-      });
+      const result = guard.canActivate(mockRoute, mockState);
+      expect(result).toBe(true);
+      expect(routerSpy.navigate).not.toHaveBeenCalled();
     });
 
-    it('should redirect to login when user is not authenticated', (done) => {
-      Object.defineProperty(authServiceSpy, 'currentUser', {
-        get: () => of(null)
+    it('should redirect to login when user is not authenticated', () => {
+      Object.defineProperty(authServiceSpy, 'currentUserValue', {
+        get: () => null
       });
 
-      guard.canActivate(mockRoute, mockState).subscribe(result => {
-        expect(result).toBe(false);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
-        done();
-      });
+      const result = guard.canActivate(mockRoute, mockState);
+      expect(result).toBe(false);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/login'], { queryParams: { returnUrl: '/admin/dashboard' } });
     });
 
-    it('should allow access when user has required role', (done) => {
+    it('should allow access when user has required role', () => {
       const mockUser = {
         id: 1,
         name: 'Admin User',
         email: 'admin@test.com',
-        role: 'admin'
+        phone: '1234567890',
+        role: 'admin' as 'admin' | 'employee',
+        isActive: true
       };
 
-      mockRoute.data = { role: 'admin' };
+      mockRoute.data = { roles: ['admin'] };
 
-      Object.defineProperty(authServiceSpy, 'currentUser', {
-        get: () => of(mockUser)
+      Object.defineProperty(authServiceSpy, 'currentUserValue', {
+        get: () => mockUser
       });
 
-      guard.canActivate(mockRoute, mockState).subscribe(result => {
-        expect(result).toBe(true);
-        done();
-      });
+      const result = guard.canActivate(mockRoute, mockState);
+      expect(result).toBe(true);
     });
 
-    it('should redirect when user does not have required role', (done) => {
+    it('should redirect when user does not have required role', () => {
       const mockUser = {
         id: 2,
         name: 'Employee User',
         email: 'emp@test.com',
-        role: 'employee'
+        phone: '1234567890',
+        role: 'employee' as 'admin' | 'employee',
+        isActive: true
       };
 
-      mockRoute.data = { role: 'admin' };
+      mockRoute.data = { roles: ['admin'] };
 
-      Object.defineProperty(authServiceSpy, 'currentUser', {
-        get: () => of(mockUser)
+      Object.defineProperty(authServiceSpy, 'currentUserValue', {
+        get: () => mockUser
       });
 
-      guard.canActivate(mockRoute, mockState).subscribe(result => {
-        expect(result).toBe(false);
-        expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
-        done();
-      });
+      const result = guard.canActivate(mockRoute, mockState);
+      expect(result).toBe(false);
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
     });
 
-    it('should allow access when no specific role is required', (done) => {
+    it('should allow access when no specific role is required', () => {
       const mockUser = {
         id: 2,
         name: 'Employee User',
         email: 'emp@test.com',
-        role: 'employee'
+        phone: '1234567890',
+        role: 'employee' as 'admin' | 'employee',
+        isActive: true
       };
 
       mockRoute.data = {};
 
-      Object.defineProperty(authServiceSpy, 'currentUser', {
-        get: () => of(mockUser)
+      Object.defineProperty(authServiceSpy, 'currentUserValue', {
+        get: () => mockUser
       });
 
-      guard.canActivate(mockRoute, mockState).subscribe(result => {
-        expect(result).toBe(true);
-        done();
-      });
+      const result = guard.canActivate(mockRoute, mockState);
+      expect(result).toBe(true);
     });
   });
 });

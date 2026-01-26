@@ -150,7 +150,7 @@ describe('EmployeesListComponent', () => {
   it('should handle error when deleting employee fails', () => {
     spyOn(window, 'confirm').and.returnValue(true);
     spyOn(window, 'alert');
-    userService.deleteUser.and.returnValue(throwError(() => new Error('Delete failed')));
+    userService.deleteUser.and.returnValue(throwError(() => ({ error: { message: 'Delete failed' } })));
     
     component.deleteEmployee(2);
     

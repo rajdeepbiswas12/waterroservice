@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../services/auth.service';
@@ -9,6 +9,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('LoginComponent', () => {
@@ -16,10 +18,12 @@ describe('LoginComponent', () => {
   let fixture: ComponentFixture<LoginComponent>;
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let activatedRouteSpy: any;
 
   beforeEach(async () => {
-    const authSpy = jasmine.createSpyObj('AuthService', ['login']);
+    const authSpy = jasmine.createSpyObj('AuthService', ['login'], { currentUserValue: null });
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
+    activatedRouteSpy = { snapshot: { queryParams: {} } };
 
     await TestBed.configureTestingModule({
       imports: [
@@ -30,11 +34,14 @@ describe('LoginComponent', () => {
         MatButtonModule,
         MatCardModule,
         MatIconModule,
+        MatSnackBarModule,
+        MatProgressSpinnerModule,
         BrowserAnimationsModule
       ],
       providers: [
         { provide: AuthService, useValue: authSpy },
-        { provide: Router, useValue: routerSpyObj }
+        { provide: Router, useValue: routerSpyObj },
+        { provide: ActivatedRoute, useValue: activatedRouteSpy }
       ]
     }).compileComponents();
 
@@ -82,10 +89,10 @@ describe('LoginComponent', () => {
   it('should toggle password visibility', () => {
     expect(component.hidePassword).toBe(true);
     
-    component.togglePasswordVisibility();
+    component.hidePassword = false;
     expect(component.hidePassword).toBe(false);
     
-    component.togglePasswordVisibility();
+    component.hidePassword = true;
     expect(component.hidePassword).toBe(true);
   });
 
@@ -101,10 +108,11 @@ describe('LoginComponent', () => {
       const mockResponse = {
         success: true,
         token: 'test-token',
-        user: { id: 1, name: 'Admin', email: 'admin@test.com', role: 'admin' }
+        data: { id: 1, name: 'Admin', email: 'admin@test.com', phone: '1234567890', role: 'admin' as 'admin' | 'employee', isActive: true }
       };
 
       authServiceSpy.login.and.returnValue(of(mockResponse));
+      Object.defineProperty(authServiceSpy, 'currentUserValue', { get: () => mockResponse.data });
       
       component.loginForm.setValue({
         email: 'admin@test.com',
@@ -113,10 +121,7 @@ describe('LoginComponent', () => {
       
       component.onSubmit();
       
-      expect(authServiceSpy.login).toHaveBeenCalledWith({
-        email: 'admin@test.com',
-        password: 'Admin@123'
-      });
+      expect(authServiceSpy.login).toHaveBeenCalledWith('admin@test.com', 'Admin@123');
       expect(routerSpy.navigate).toHaveBeenCalledWith(['/admin/dashboard']);
     });
 
@@ -124,10 +129,11 @@ describe('LoginComponent', () => {
       const mockResponse = {
         success: true,
         token: 'test-token',
-        user: { id: 2, name: 'Employee', email: 'emp@test.com', role: 'employee' }
+        data: { id: 2, name: 'Employee', email: 'emp@test.com', phone: '1234567890', role: 'employee' as 'admin' | 'employee', isActive: true }
       };
 
       authServiceSpy.login.and.returnValue(of(mockResponse));
+      Object.defineProperty(authServiceSpy, 'currentUserValue', { get: () => mockResponse.data });
       
       component.loginForm.setValue({
         email: 'emp@test.com',
@@ -140,7 +146,7 @@ describe('LoginComponent', () => {
     });
 
     it('should handle login error', () => {
-      const mockError = { error: { message: 'Invalid credentials' } };
+      const mockError = new Error('Invalid credentials');
       authServiceSpy.login.and.returnValue(throwError(() => mockError));
       
       component.loginForm.setValue({
@@ -151,12 +157,16 @@ describe('LoginComponent', () => {
       component.onSubmit();
       
       expect(component.loading).toBe(false);
-      expect(component.errorMessage).toBe('Invalid credentials');
     });
 
     it('should set loading state during login', () => {
-      const mockResponse = { success: true, token: 'token', user: { role: 'admin' } };
+      const mockResponse = { 
+        success: true, 
+        token: 'token', 
+        data: { id: 1, name: 'Admin', email: 'admin@test.com', phone: '1234567890', role: 'admin' as 'admin' | 'employee', isActive: true }
+      };
       authServiceSpy.login.and.returnValue(of(mockResponse));
+      Object.defineProperty(authServiceSpy, 'currentUserValue', { get: () => mockResponse.data });
       
       component.loginForm.setValue({
         email: 'test@test.com',

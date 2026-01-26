@@ -94,7 +94,7 @@ describe('OrderService', () => {
         customerPhone: '+1234567890',
         customerAddress: '123 Main St',
         serviceType: 'Installation',
-        priority: 'high'
+        priority: 'high' as 'low' | 'medium' | 'high' | 'urgent'
       };
 
       const mockResponse = {
@@ -116,7 +116,7 @@ describe('OrderService', () => {
 
   describe('updateOrder', () => {
     it('should update order', (done) => {
-      const updates = { priority: 'urgent', description: 'Updated' };
+      const updates: Partial<any> = { priority: 'urgent', description: 'Updated' };
       const mockResponse = {
         success: true,
         order: { id: 1, ...updates }
