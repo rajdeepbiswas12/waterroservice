@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-create-admin',
@@ -35,7 +36,8 @@ export class CreateAdminComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -59,12 +61,12 @@ export class CreateAdminComponent implements OnInit {
       
       this.authService.register(this.adminForm.value).subscribe({
         next: (response) => {
-          alert('Admin created successfully!');
+          this.notificationService.showSuccess('Admin created successfully!');
           this.router.navigate(['/admin/admins']);
         },
         error: (error) => {
           console.error('Error creating admin:', error);
-          alert('Failed to create admin: ' + (error.message || 'Unknown error'));
+          this.notificationService.showError('Failed to create admin: ' + (error.message || 'Unknown error'));
           this.loading = false;
         }
       });

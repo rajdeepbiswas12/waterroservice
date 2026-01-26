@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-create-employee',
@@ -35,7 +36,8 @@ export class CreateEmployeeComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -59,12 +61,12 @@ export class CreateEmployeeComponent implements OnInit {
       
       this.authService.register(this.employeeForm.value).subscribe({
         next: (response) => {
-          alert('Employee created successfully!');
+          this.notificationService.showSuccess('Employee created successfully!');
           this.router.navigate(['/admin/employees']);
         },
         error: (error) => {
           console.error('Error creating employee:', error);
-          alert('Failed to create employee: ' + (error.message || 'Unknown error'));
+          this.notificationService.showError('Failed to create employee: ' + (error.message || 'Unknown error'));
           this.loading = false;
         }
       });

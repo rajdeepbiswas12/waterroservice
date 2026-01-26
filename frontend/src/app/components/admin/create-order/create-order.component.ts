@@ -13,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
+import { NotificationService } from '../../../services/notification.service';
 // import { AddressAutocompleteComponent } from '../../shared/address-autocomplete/address-autocomplete.component'; // Commented out Google Maps integration
 
 @Component({
@@ -48,7 +49,8 @@ export class CreateOrderComponent implements OnInit {
     private fb: FormBuilder,
     private orderService: OrderService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -83,7 +85,7 @@ export class CreateOrderComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading employees:', error);
-        alert('Failed to load employees: ' + error.message);
+        this.notificationService.showError('Failed to load employees: ' + error.message);
       }
     });
   }
@@ -114,12 +116,12 @@ export class CreateOrderComponent implements OnInit {
 
       this.orderService.createOrder(orderData).subscribe({
         next: (response) => {
-          alert('Order created successfully!');
+          this.notificationService.showSuccess('Order created successfully!');
           this.router.navigate(['/admin/orders']);
         },
         error: (error) => {
           console.error('Error creating order:', error);
-          alert('Failed to create order: ' + (error.message || 'Unknown error'));
+          this.notificationService.showError('Failed to create order: ' + (error.message || 'Unknown error'));
           this.loading = false;
         }
       });

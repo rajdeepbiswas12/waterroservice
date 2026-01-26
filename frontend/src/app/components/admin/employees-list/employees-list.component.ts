@@ -13,6 +13,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../../services/user.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-employees-list',
@@ -44,7 +45,10 @@ export class EmployeesListComponent implements OnInit {
   activeFilter = '';
   loading = false;
 
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
     this.loadEmployees();
@@ -60,7 +64,7 @@ export class EmployeesListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading employees:', error);
-        alert('Failed to load employees: ' + error.message);
+        this.notificationService.showError('Failed to load employees: ' + error.message);
         this.loading = false;
       }
     });
@@ -82,7 +86,7 @@ export class EmployeesListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating employee:', error);
-        alert('Failed to update employee status');
+        this.notificationService.showError('Failed to update employee status');
       }
     });
   }
@@ -95,7 +99,7 @@ export class EmployeesListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error deleting employee:', error);
-          alert('Failed to delete employee: ' + (error.error?.message || 'Unknown error'));
+          this.notificationService.showError('Failed to delete employee: ' + (error.error?.message || 'Unknown error'));
         }
       });
     }

@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { UserService } from '../../../services/user.service';
 import { AuthService } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-admin-management',
@@ -47,7 +48,8 @@ export class AdminManagementComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {
     this.currentUserId = this.authService.currentUserValue?.id;
   }
@@ -66,7 +68,7 @@ export class AdminManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading admins:', error);
-        alert('Failed to load admins: ' + error.message);
+        this.notificationService.showError('Failed to load admins: ' + error.message);
         this.loading = false;
       }
     });
@@ -83,7 +85,7 @@ export class AdminManagementComponent implements OnInit {
 
   toggleActive(admin: any) {
     if (admin.id === this.currentUserId) {
-      alert('You cannot deactivate your own account!');
+      this.notificationService.showWarning('You cannot deactivate your own account!');
       return;
     }
 
@@ -93,14 +95,14 @@ export class AdminManagementComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating admin:', error);
-        alert('Failed to update admin status');
+        this.notificationService.showError('Failed to update admin status');
       }
     });
   }
 
   deleteAdmin(adminId: number) {
     if (adminId === this.currentUserId) {
-      alert('You cannot delete your own account!');
+      this.notificationService.showWarning('You cannot delete your own account!');
       return;
     }
 
@@ -111,7 +113,7 @@ export class AdminManagementComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error deleting admin:', error);
-          alert('Failed to delete admin: ' + (error.error?.message || 'Unknown error'));
+          this.notificationService.showError('Failed to delete admin: ' + (error.error?.message || 'Unknown error'));
         }
       });
     }

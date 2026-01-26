@@ -15,6 +15,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import { OrderService } from '../../../services/order.service';
 import { UserService } from '../../../services/user.service';
+import { NotificationService } from '../../../services/notification.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
@@ -55,7 +56,8 @@ export class OrdersListComponent implements OnInit {
   constructor(
     private orderService: OrderService,
     private userService: UserService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -72,7 +74,7 @@ export class OrdersListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading orders:', error);
-        alert('Failed to load orders: ' + error.message);
+        this.notificationService.showError('Failed to load orders: ' + error.message);
         this.loading = false;
       }
     });
@@ -115,7 +117,7 @@ export class OrdersListComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error deleting order:', error);
-          alert('Failed to delete order');
+          this.notificationService.showError('Failed to delete order');
         }
       });
     }
