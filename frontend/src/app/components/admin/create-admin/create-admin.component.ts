@@ -64,7 +64,7 @@ export class CreateAdminComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating admin:', error);
-          alert('Failed to create admin: ' + (error.error?.message || 'Unknown error'));
+          alert('Failed to create admin: ' + (error.message || 'Unknown error'));
           this.loading = false;
         }
       });

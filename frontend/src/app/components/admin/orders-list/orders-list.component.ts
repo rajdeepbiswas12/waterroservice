@@ -63,12 +63,13 @@ export class OrdersListComponent implements OnInit {
     this.loading = true;
     this.orderService.getOrders().subscribe({
       next: (response: any) => {
-        this.orders = response.orders || [];
+        this.orders = response.data || [];
         this.filteredOrders = [...this.orders];
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading orders:', error);
+        alert('Failed to load orders: ' + error.message);
         this.loading = false;
       }
     });

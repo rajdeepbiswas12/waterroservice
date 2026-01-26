@@ -60,12 +60,13 @@ export class AdminManagementComponent implements OnInit {
     this.loading = true;
     this.userService.getUsers({ role: 'admin' }).subscribe({
       next: (response: any) => {
-        this.admins = response.users || [];
+        this.admins = response.data || [];
         this.filteredAdmins = [...this.admins];
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading admins:', error);
+        alert('Failed to load admins: ' + error.message);
         this.loading = false;
       }
     });

@@ -74,10 +74,11 @@ export class CreateOrderComponent implements OnInit {
   loadEmployees() {
     this.userService.getAvailableEmployees().subscribe({
       next: (response: any) => {
-        this.employees = response.employees || [];
+        this.employees = response.data || [];
       },
       error: (error) => {
         console.error('Error loading employees:', error);
+        alert('Failed to load employees: ' + error.message);
       }
     });
   }
@@ -99,7 +100,7 @@ export class CreateOrderComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating order:', error);
-          alert('Failed to create order: ' + (error.error?.message || 'Unknown error'));
+          alert('Failed to create order: ' + (error.message || 'Unknown error'));
           this.loading = false;
         }
       });

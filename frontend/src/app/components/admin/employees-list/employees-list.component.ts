@@ -54,12 +54,13 @@ export class EmployeesListComponent implements OnInit {
     this.loading = true;
     this.userService.getUsers({ role: 'employee' }).subscribe({
       next: (response: any) => {
-        this.employees = response.users || [];
+        this.employees = response.data || [];
         this.filteredEmployees = [...this.employees];
         this.loading = false;
       },
       error: (error) => {
         console.error('Error loading employees:', error);
+        alert('Failed to load employees: ' + error.message);
         this.loading = false;
       }
     });

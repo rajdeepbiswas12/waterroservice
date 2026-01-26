@@ -64,7 +64,7 @@ export class CreateEmployeeComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating employee:', error);
-          alert('Failed to create employee: ' + (error.error?.message || 'Unknown error'));
+          alert('Failed to create employee: ' + (error.message || 'Unknown error'));
           this.loading = false;
         }
       });

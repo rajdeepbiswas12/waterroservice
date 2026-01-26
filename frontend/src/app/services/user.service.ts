@@ -37,6 +37,6 @@ export class UserService {
   }
 
   getAvailableEmployees(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/employees/available`);
+    return this.http.get<any>(`${this.apiUrl}/available-employees`);
   }
 }
