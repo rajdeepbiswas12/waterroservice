@@ -6,7 +6,8 @@ const whatsappNumber = process.env.TWILIO_WHATSAPP_NUMBER;
 
 let client;
 
-if (accountSid && authToken) {
+// Only initialize Twilio client if valid credentials are provided
+if (accountSid && authToken && accountSid.startsWith('AC') && authToken.length > 10) {
   client = twilio(accountSid, authToken);
 }
 
