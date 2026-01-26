@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipModule } from '@angular/material/chip';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -20,7 +20,7 @@ import { GoogleMapComponent } from '../../shared/google-map/google-map.component
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatChipModule,
+    MatChipsModule,
     MatProgressSpinnerModule,
     MatDividerModule,
     MatTooltipModule,

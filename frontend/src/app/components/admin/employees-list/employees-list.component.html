@@ -78,10 +78,7 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let employee">
-          <button mat-icon-button [routerLink]="['/admin/employees', employee.id]" matTooltip="View Details">
-            <mat-icon>visibility</mat-icon>
-          </button>
-          <button mat-icon-button [routerLink]="['/admin/employees/edit', employee.id]" matTooltip="Edit">
+          <button mat-icon-button [routerLink]="['/admin/employees', employee.id]" matTooltip="View / Edit">
             <mat-icon>edit</mat-icon>
           </button>
           <button mat-icon-button (click)="deleteEmployee(employee.id)" matTooltip="Delete" color="warn">
