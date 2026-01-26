@@ -45,7 +45,31 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Enable CORS with credentials
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:4200',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    // List of allowed origins
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'http://localhost:4200',
+      'http://localhost:4200',
+      'http://localhost:44307',
+      // Add network URLs dynamically
+      `http://${getNetworkIP()}:4200`,
+      `http://${getNetworkIP()}:44307`
+    ];
+    
+    // Allow all origins in development
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -140,6 +164,22 @@ app.use((req, res) => {
 const PORT = process.env.PORT || 5000;
 const CLUSTER_MODE = process.env.CLUSTER_MODE === 'true';
 
+// Get network IP address
+function getNetworkIP() {
+  const { networkInterfaces } = require('os');
+  const nets = networkInterfaces();
+  
+  for (const name of Object.keys(nets)) {
+    for (const net of nets[name]) {
+      // Skip internal (i.e. 127.0.0.1) and non-IPv4 addresses
+      if (net.family === 'IPv4' && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return 'localhost';
+}
+
 // Don't start server in test environment
 if (process.env.NODE_ENV !== 'test') {
   if (CLUSTER_MODE && require('os').cpus().length > 1) {
@@ -171,13 +211,16 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 function startServer() {
-  const server = app.listen(PORT, () => {
+  const HOST = process.env.HOST || '0.0.0.0'; // Listen on all network interfaces
+  const server = app.listen(PORT, HOST, () => {
+    const networkIP = getNetworkIP();
     logger.info(`
 ╔═══════════════════════════════════════════╗
 ║  RO Service Backend Server Running        ║
 ║  Environment: ${(process.env.NODE_ENV || 'development').padEnd(28)}║
 ║  Port: ${PORT.toString().padEnd(34)}║
-║  URL: http://localhost:${PORT.toString().padEnd(20)}║
+║  Local: http://localhost:${PORT.toString().padEnd(21)}║
+║  Network: http://${networkIP}:${PORT.toString().padEnd(16)}║
 ║  Cluster: ${(CLUSTER_MODE ? 'Enabled' : 'Disabled').padEnd(30)}║
 ║  PID: ${process.pid.toString().padEnd(34)}║
 ╚═══════════════════════════════════════════╝
