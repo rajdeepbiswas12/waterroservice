@@ -1,0 +1,30 @@
+<mat-toolbar color="primary" class="header">
+  <span class="logo">
+    <mat-icon>water_drop</mat-icon>
+    RO Service Tracking
+  </span>
+  <span class="spacer"></span>
+  <span class="user-info">
+    <mat-icon>person</mat-icon>
+    {{ userName }}
+  </span>
+  <button mat-icon-button (click)="logout()" matTooltip="Logout">
+    <mat-icon>logout</mat-icon>
+  </button>
+</mat-toolbar>
+
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav mode="side" opened class="sidenav">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/employee/orders" routerLinkActive="active">
+        <mat-icon matListItemIcon>assignment</mat-icon>
+        <span matListItemTitle>My Orders</span>
+      </a>
+      <mat-divider></mat-divider>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="content">
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

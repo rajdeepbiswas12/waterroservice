@@ -40,7 +40,13 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private snackBar: MatSnackBar
-  ) {}
+  ) {
+    // Initialize form in constructor to avoid undefined form errors
+    this.loginForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
 
   ngOnInit(): void {
     // Redirect if already logged in
@@ -48,11 +54,6 @@ export class LoginComponent implements OnInit {
       this.redirectToDashboard();
       return;
     }
-
-    this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
 
     // Get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
@@ -104,7 +105,7 @@ export class LoginComponent implements OnInit {
     if (user?.role === 'admin') {
       this.router.navigate(['/admin/dashboard']);
     } else if (user?.role === 'employee') {
-      this.router.navigate(['/employee/dashboard']);
+      this.router.navigate(['/employee/orders']);
     }
   }
 }

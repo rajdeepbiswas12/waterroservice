@@ -9,6 +9,9 @@ import { EmployeesListComponent } from './components/admin/employees-list/employ
 import { CreateEmployeeComponent } from './components/admin/create-employee/create-employee.component';
 import { AdminManagementComponent } from './components/admin/admin-management/admin-management.component';
 import { CreateAdminComponent } from './components/admin/create-admin/create-admin.component';
+import { EmployeeDashboardComponent } from './components/employee/employee-dashboard/employee-dashboard.component';
+import { EmployeeOrdersComponent } from './components/employee/employee-orders/employee-orders.component';
+import { OrderDetailComponent } from './components/employee/order-detail/order-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -27,6 +30,17 @@ export const routes: Routes = [
       { path: 'employees/create', component: CreateEmployeeComponent },
       { path: 'admins', component: AdminManagementComponent },
       { path: 'admins/create', component: CreateAdminComponent },
+    ]
+  },
+  {
+    path: 'employee',
+    component: EmployeeDashboardComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['employee'] },
+    children: [
+      { path: '', redirectTo: 'orders', pathMatch: 'full' },
+      { path: 'orders', component: EmployeeOrdersComponent },
+      { path: 'orders/:id', component: OrderDetailComponent }
     ]
   },
   { path: '**', redirectTo: '/login' }

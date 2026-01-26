@@ -1,0 +1,88 @@
+.orders-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+mat-card {
+  margin-bottom: 20px;
+}
+
+mat-card-header {
+  margin-bottom: 20px;
+}
+
+mat-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  p {
+    font-size: 18px;
+    margin: 0;
+  }
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.orders-table {
+  width: 100%;
+  background-color: white;
+
+  th {
+    font-weight: 600;
+    color: #333;
+  }
+
+  td, th {
+    padding: 16px;
+  }
+}
+
+.customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  small {
+    color: #666;
+    font-size: 12px;
+  }
+}
+
+mat-chip {
+  font-size: 11px;
+  min-height: 24px;
+  padding: 4px 12px;
+}
+
+button {
+  mat-icon {
+    margin-right: 4px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
