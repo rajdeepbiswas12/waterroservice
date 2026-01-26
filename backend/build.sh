@@ -78,6 +78,12 @@ cd ..
 echo -e "${GREEN}✓ Production dependencies installed${NC}"
 echo ""
 
+echo -e "${BLUE}→ Step 6: Copying migration script...${NC}"
+cp migrate.sh $BUILD_DIR/
+chmod +x $BUILD_DIR/migrate.sh
+echo -e "${GREEN}✓ Migration script copied${NC}"
+echo ""
+
 echo -e "${GREEN}╔═══════════════════════════════════════════════════════╗${NC}"
 echo -e "${GREEN}║           Backend Build Completed Successfully       ║${NC}"
 echo -e "${GREEN}╚═══════════════════════════════════════════════════════╝${NC}"
@@ -86,5 +92,6 @@ echo -e "${YELLOW}Build Output:${NC} ./backend/$BUILD_DIR/"
 echo -e "${YELLOW}To deploy:${NC}"
 echo "  1. Copy the $BUILD_DIR/ directory to your server"
 echo "  2. Update .env.production with your configuration"
-echo "  3. Run: node server.js"
+echo "  3. Run database migration: ./migrate.sh"
+echo "  4. Start server: node server.js"
 echo ""
