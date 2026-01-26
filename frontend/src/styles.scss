@@ -65,6 +65,79 @@ body {
   flex: 1 1 auto;
 }
 
+/* Responsive Typography */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+  
+  h1 { font-size: 24px !important; }
+  h2 { font-size: 20px !important; }
+  h3 { font-size: 18px !important; }
+  h4 { font-size: 16px !important; }
+  h5 { font-size: 14px !important; }
+  h6 { font-size: 12px !important; }
+}
+
+/* Responsive Spacing */
+@media (max-width: 768px) {
+  .mat-mdc-card {
+    margin: 10px !important;
+  }
+  
+  .mat-mdc-card-content {
+    padding: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mat-mdc-card {
+    margin: 5px !important;
+  }
+  
+  .mat-mdc-card-content {
+    padding: 12px !important;
+  }
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .mat-mdc-table {
+    font-size: 12px;
+  }
+  
+  .mat-mdc-header-cell,
+  .mat-mdc-cell {
+    padding: 8px !important;
+  }
+  
+  .mat-mdc-button,
+  .mat-mdc-icon-button {
+    min-width: 36px !important;
+    padding: 0 8px !important;
+  }
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* Touch-friendly button sizes */
+@media (max-width: 768px) {
+  button {
+    min-height: 44px;
+  }
+  
+  .mat-mdc-icon-button {
+    width: 44px !important;
+    height: 44px !important;
+  }
+}
+
 /* Snackbar Notification Styles */
 .success-snackbar {
   background-color: #4caf50 !important;

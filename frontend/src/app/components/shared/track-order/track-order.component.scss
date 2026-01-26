@@ -313,18 +313,70 @@
   }
 }
 
+/* Responsive styles */
 @media (max-width: 768px) {
+  .track-order-container {
+    padding: 15px;
+  }
+  
+  .header-card {
+    mat-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      
+      mat-card-title {
+        font-size: 20px;
+      }
+    }
+    
+    .order-info {
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+  }
+  
+  .progress-card .status-steps {
+    .step {
+      mat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 20px;
+      }
+      
+      span {
+        font-size: 10px;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
   .track-order-container {
     padding: 10px;
   }
   
-  .header-card .order-info {
-    grid-template-columns: 1fr;
+  .header-card mat-card-title {
+    font-size: 18px;
+    
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
   }
   
   .progress-card .status-steps {
-    .step span {
-      display: none;
+    .step {
+      mat-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+      }
+      
+      span {
+        display: none;
+      }
     }
   }
 }
