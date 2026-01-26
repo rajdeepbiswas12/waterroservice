@@ -7,61 +7,42 @@ async function createIndexes() {
   try {
     console.log('Creating database indexes for scalability...');
 
+    // Helper function to create index if it doesn't exist
+    const createIndexIfNotExists = async (tableName, indexName, columns) => {
+      try {
+        const [indexes] = await sequelize.query(`SHOW INDEX FROM ${tableName} WHERE Key_name = '${indexName}'`);
+        if (indexes.length === 0) {
+          await sequelize.query(`CREATE INDEX ${indexName} ON ${tableName}(${columns})`);
+          console.log(`  ✓ Created index: ${indexName}`);
+        }
+      } catch (error) {
+        console.log(`  ℹ Index ${indexName} may already exist or error: ${error.message}`);
+      }
+    };
+
     // Indexes for Users table
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_users_active ON users(isActive);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);
-    `);
+    await createIndexIfNotExists('users', 'idx_users_email', 'email');
+    await createIndexIfNotExists('users', 'idx_users_role', 'role');
+    await createIndexIfNotExists('users', 'idx_users_active', 'isActive');
+    await createIndexIfNotExists('users', 'idx_users_phone', 'phone');
 
     // Indexes for Orders table
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_priority ON orders(priority);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(createdAt);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_completed_date ON orders(completedDate);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_assigned_to ON orders(assignedToId);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_assigned_by ON orders(assignedById);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_service_type ON orders(serviceType);
-    `);
+    await createIndexIfNotExists('orders', 'idx_orders_status', 'status');
+    await createIndexIfNotExists('orders', 'idx_orders_priority', 'priority');
+    await createIndexIfNotExists('orders', 'idx_orders_created_at', 'createdAt');
+    await createIndexIfNotExists('orders', 'idx_orders_completed_date', 'completedDate');
+    await createIndexIfNotExists('orders', 'idx_orders_assigned_to', 'assignedToId');
+    await createIndexIfNotExists('orders', 'idx_orders_assigned_by', 'assignedById');
+    await createIndexIfNotExists('orders', 'idx_orders_service_type', 'serviceType');
     
     // Composite indexes for common queries
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_status_created ON orders(status, createdAt);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_orders_assigned_status ON orders(assignedToId, status);
-    `);
+    await createIndexIfNotExists('orders', 'idx_orders_status_created', 'status, createdAt');
+    await createIndexIfNotExists('orders', 'idx_orders_assigned_status', 'assignedToId, status');
 
-    // Indexes for OrderHistory table
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_order_history_order_id ON order_history(orderId);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_order_history_changed_by ON order_history(changedById);
-    `);
-    await sequelize.query(`
-      CREATE INDEX IF NOT EXISTS idx_order_history_created ON order_history(createdAt);
-    `);
+    // Indexes for OrderHistory table  
+    await createIndexIfNotExists('order_history', 'idx_order_history_order_id', 'orderId');
+    await createIndexIfNotExists('order_history', 'idx_order_history_changed_by', 'changedById');
+    await createIndexIfNotExists('order_history', 'idx_order_history_created', 'createdAt');
 
     console.log('✓ Database indexes created successfully');
   } catch (error) {
