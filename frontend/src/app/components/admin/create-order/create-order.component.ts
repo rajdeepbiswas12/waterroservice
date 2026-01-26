@@ -89,6 +89,7 @@ export class CreateOrderComponent implements OnInit {
       
       const orderData = {
         ...this.orderForm.value,
+        customerEmail: this.orderForm.value.customerEmail || null,
         latitude: this.orderForm.value.latitude ? parseFloat(this.orderForm.value.latitude) : null,
         longitude: this.orderForm.value.longitude ? parseFloat(this.orderForm.value.longitude) : null
       };

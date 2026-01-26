@@ -44,10 +44,13 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, { email, password })
       .pipe(
         tap(response => {
-          if (response.success && response.token) {
+          console.log('Auth service received:', response);
+          if (response && response.success && response.token) {
             localStorage.setItem('token', response.token);
-            localStorage.setItem('currentUser', JSON.stringify(response.data));
-            this.currentUserSubject.next(response.data);
+            if (response.data) {
+              localStorage.setItem('currentUser', JSON.stringify(response.data));
+              this.currentUserSubject.next(response.data);
+            }
           }
         })
       );

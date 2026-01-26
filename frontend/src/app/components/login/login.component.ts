@@ -72,6 +72,8 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(email, password).subscribe({
       next: (response) => {
+        console.log('Login response:', response);
+        this.loading = false;
         this.snackBar.open('Login successful!', 'Close', {
           duration: 3000,
           horizontalPosition: 'end',
@@ -81,13 +83,18 @@ export class LoginComponent implements OnInit {
         this.redirectToDashboard();
       },
       error: (error) => {
+        console.error('Login error:', error);
         this.loading = false;
-        this.snackBar.open(error.message || 'Login failed. Please check your credentials.', 'Close', {
+        const errorMsg = error?.error?.message || error?.message || 'Login failed. Please check your credentials.';
+        this.snackBar.open(errorMsg, 'Close', {
           duration: 5000,
           horizontalPosition: 'end',
           verticalPosition: 'top',
           panelClass: ['error-snackbar']
         });
+      },
+      complete: () => {
+        this.loading = false;
       }
     });
   }
