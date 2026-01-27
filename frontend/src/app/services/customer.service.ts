@@ -32,9 +32,14 @@ export interface Customer {
   providedIn: 'root'
 })
 export class CustomerService {
-  private apiUrl = `${environment.apiUrl}/customers`;
+  private get apiUrl() {
+    return `${this.configService.getApiUrl()}/customers`;
+  }
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
 
   getAllCustomers(page = 1, limit = 10, search = '', status = ''): Observable<any> {
     let params = new HttpParams()

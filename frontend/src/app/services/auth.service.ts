@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
-import { environment } from '../../environments/environment';
+import { ConfigService } from './config.service';
 import { User, LoginResponse } from '../models/user.model';
 
 @Injectable({
@@ -11,11 +11,14 @@ import { User, LoginResponse } from '../models/user.model';
 export class AuthService {
   private currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
-  private apiUrl = environment.apiUrl;
+  private get apiUrl() {
+    return this.configService.getApiUrl();
+  }
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private configService: ConfigService
   ) {
     const storedUser = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<User | null>(

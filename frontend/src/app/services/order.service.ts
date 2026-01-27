@@ -31,9 +31,14 @@ export interface PaginatedResponse<T> {
   providedIn: 'root'
 })
 export class OrderService {
-  private apiUrl = `${environment.apiUrl}/orders`;
+  private get apiUrl() {
+    return `${this.configService.getApiUrl()}/orders`;
+  }
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
 
   getOrders(params?: PaginationParams): Observable<PaginatedResponse<Order>> {
     let httpParams = new HttpParams();

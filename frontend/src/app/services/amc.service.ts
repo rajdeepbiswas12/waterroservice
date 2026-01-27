@@ -65,9 +65,14 @@ export interface AmcVisit {
   providedIn: 'root'
 })
 export class AmcService {
-  private apiUrl = `${environment.apiUrl}/amc`;
+  private get apiUrl() {
+    return `${this.configService.getApiUrl()}/amc`;
+  }
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private configService: ConfigService
+  ) { }
 
   // AMC Plans
   getAllPlans(isActive?: boolean): Observable<any> {
