@@ -1,0 +1,209 @@
+.subscription-form-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+mat-card {
+  margin-bottom: 20px;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 24px;
+  font-weight: 500;
+  color: #1976d2;
+}
+
+.header-title mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.plan-details {
+  margin: 20px 0;
+}
+
+.info-card {
+  background-color: #f5f5f5;
+  box-shadow: none;
+  border: 1px solid #e0e0e0;
+}
+
+.info-card mat-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #424242;
+  margin-bottom: 12px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.detail-item .label {
+  font-weight: 500;
+  color: #666;
+}
+
+.detail-item .value {
+  font-weight: 600;
+  color: #1976d2;
+}
+
+.detail-item.total {
+  grid-column: 1 / -1;
+  background-color: #e3f2fd;
+  border-color: #1976d2;
+}
+
+.detail-item.total .label,
+.detail-item.total .value {
+  font-size: 18px;
+  color: #1976d2;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+button {
+  min-width: 120px;
+}
+
+button mat-spinner {
+  display: inline-block;
+  margin-right: 8px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .subscription-form-container {
+    padding: 15px;
+  }
+  
+  .form-grid {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .subscription-form-container {
+    padding: 10px;
+  }
+  
+  mat-card {
+    margin-bottom: 15px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  .header-title {
+    font-size: 18px;
+  }
+  
+  .header-title mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .detail-item.total {
+    grid-column: 1;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  button {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
+@media (max-width: 480px) {
+  .subscription-form-container {
+    padding: 5px;
+  }
+  
+  .header-title {
+    font-size: 16px;
+  }
+  
+  .info-card mat-card-title {
+    font-size: 14px;
+  }
+  
+  .detail-item {
+    padding: 6px 8px;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .detail-item .label,
+  .detail-item .value {
+    font-size: 12px;
+  }
+  
+  .detail-item.total .label,
+  .detail-item.total .value {
+    font-size: 14px;
+  }
+}
+
+/* Form field styling */
+mat-form-field {
+  width: 100%;
+}
+
+mat-error {
+  font-size: 12px;
+}

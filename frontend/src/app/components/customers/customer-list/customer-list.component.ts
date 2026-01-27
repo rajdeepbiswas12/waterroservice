@@ -96,11 +96,11 @@ export class CustomerListComponent implements OnInit {
   }
 
   viewCustomer(customer: Customer): void {
-    this.router.navigate(['/customers', customer.id]);
+    this.router.navigate(['/admin/customers', customer.id]);
   }
 
   editCustomer(customer: Customer): void {
-    this.router.navigate(['/customers', customer.id, 'edit']);
+    this.router.navigate(['/admin/customers', customer.id, 'edit']);
   }
 
   deleteCustomer(customer: Customer): void {
@@ -119,7 +119,7 @@ export class CustomerListComponent implements OnInit {
   }
 
   addCustomer(): void {
-    this.router.navigate(['/customers/new']);
+    this.router.navigate(['/admin/customers/new']);
   }
 
   getStatusColor(status: string): string {

@@ -9,16 +9,19 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
 import { CustomerFormComponent } from './customer-form.component';
 import { CustomerService } from '../../../services/customer.service';
+import { NotificationService } from '../../../services/notification.service';
 
 describe('CustomerFormComponent', () => {
   let component: CustomerFormComponent;
   let fixture: ComponentFixture<CustomerFormComponent>;
   let customerService: jasmine.SpyObj<CustomerService>;
+  let notificationService: jasmine.SpyObj<NotificationService>;
   let router: jasmine.SpyObj<Router>;
   let activatedRoute: any;
 
@@ -48,6 +51,10 @@ describe('CustomerFormComponent', () => {
       'createCustomer',
       'updateCustomer'
     ]);
+    const notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
+      'showSuccess',
+      'showError'
+    ]);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     activatedRoute = {
@@ -67,16 +74,19 @@ describe('CustomerFormComponent', () => {
         MatSelectModule,
         MatButtonModule,
         MatIconModule,
-        MatCardModule
+        MatCardModule,
+        MatProgressSpinnerModule
       ],
       providers: [
         { provide: CustomerService, useValue: customerServiceSpy },
+        { provide: NotificationService, useValue: notificationServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRoute }
       ]
     }).compileComponents();
 
     customerService = TestBed.inject(CustomerService) as jasmine.SpyObj<CustomerService>;
+    notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     fixture = TestBed.createComponent(CustomerFormComponent);
     component = fixture.componentInstance;
@@ -229,4 +239,242 @@ describe('CustomerFormComponent', () => {
     component.onSubmit();
     expect(customerService.createCustomer).not.toHaveBeenCalled();
   });
-});
+
+  describe('Loading State', () => {
+    it('should show loading overlay during form submission', () => {
+      activatedRoute.params = of({});
+      customerService.createCustomer.and.returnValue(
+        new Promise(resolve => setTimeout(() => resolve({
+          success: true,
+          data: mockCustomer,
+          message: 'Success'
+        }), 100)) as any
+      );
+
+      fixture.detectChanges();
+      component.customerForm.patchValue({
+        name: 'John Doe',
+        phone: '9876543210',
+        address: '123 Test Street'
+      });
+
+      component.onSubmit();
+      expect(component.loading).toBeTrue();
+    });
+
+    it('should hide loading overlay after successful submission', (done) => {
+      activatedRoute.params = of({});
+      customerService.createCustomer.and.returnValue(of({
+        success: true,
+        data: mockCustomer,
+        message: 'Success'
+      }));
+
+      fixture.detectChanges();
+      component.customerForm.patchValue({
+        name: 'John Doe',
+        phone: '9876543210',
+        address: '123 Test Street'
+      });
+
+      component.onSubmit();
+      
+      setTimeout(() => {
+        expect(component.loading).toBeFalse();
+        done();
+      }, 100);
+    });
+
+    it('should disable form during loading', () => {
+      component.loading = true;
+      fixture.detectChanges();
+      expect(component.customerForm.disabled).toBeTrue();
+    });
+
+    it('should display loading spinner in template', () => {
+      component.loading = true;
+      fixture.detectChanges();
+      
+      const compiled = fixture.nativeElement;
+      const loadingOverlay = compiled.querySelector('.loading-overlay');
+      expect(loadingOverlay).toBeTruthy();
+    });
+  });
+
+  describe('Form Sections', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should display Basic Information section', () => {
+      const compiled = fixture.nativeElement;
+      const sections = compiled.querySelectorAll('.form-section h3');
+      const sectionTitles = Array.from(sections).map((s: any) => s.textContent.trim());
+      expect(sectionTitles).toContain('Basic Information');
+    });
+
+    it('should display Address Information section', () => {
+      const compiled = fixture.nativeElement;
+      const sections = compiled.querySelectorAll('.form-section h3');
+      const sectionTitles = Array.from(sections).map((s: any) => s.textContent.trim());
+      expect(sectionTitles).toContain('Address Information');
+    });
+
+    it('should have icons on all form fields', () => {
+      const compiled = fixture.nativeElement;
+      const matIcons = compiled.querySelectorAll('mat-icon');
+      expect(matIcons.length).toBeGreaterThan(0);
+    });
+
+    it('should display required indicators', () => {
+      const compiled = fixture.nativeElement;
+      const requiredLabels = compiled.querySelectorAll('label');
+      const hasRequired = Array.from(requiredLabels).some((label: any) => 
+        label.textContent.includes('*')
+      );
+      expect(hasRequired).toBeTrue();
+    });
+  });
+
+  describe('Validation Messages', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should show validation error for empty name field', () => {
+      const nameControl = component.customerForm.get('name');
+      nameControl?.setValue('');
+      nameControl?.markAsTouched();
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement;
+      const errorMessage = compiled.querySelector('mat-error');
+      expect(errorMessage).toBeTruthy();
+    });
+
+    it('should show validation error for invalid phone number', () => {
+      const phoneControl = component.customerForm.get('phone');
+      phoneControl?.setValue('123');
+      phoneControl?.markAsTouched();
+      fixture.detectChanges();
+
+      expect(phoneControl?.hasError('pattern')).toBeTrue();
+    });
+
+    it('should show validation error for invalid email', () => {
+      const emailControl = component.customerForm.get('email');
+      emailControl?.setValue('invalid-email');
+      emailControl?.markAsTouched();
+      fixture.detectChanges();
+
+      expect(emailControl?.hasError('email')).toBeTrue();
+    });
+
+    it('should clear validation errors when valid data is entered', () => {
+      const nameControl = component.customerForm.get('name');
+      nameControl?.setValue('');
+      nameControl?.markAsTouched();
+      fixture.detectChanges();
+
+      nameControl?.setValue('John Doe');
+      fixture.detectChanges();
+
+      expect(nameControl?.valid).toBeTrue();
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should display error notification on create failure', () => {
+      activatedRoute.params = of({});
+      customerService.createCustomer.and.returnValue(
+        throwError(() => ({ error: { message: 'Creation failed' } }))
+      );
+
+      fixture.detectChanges();
+      component.customerForm.patchValue({
+        name: 'John Doe',
+        phone: '9876543210',
+        address: '123 Test Street'
+      });
+
+      component.onSubmit();
+      expect(notificationService.showError).toHaveBeenCalled();
+    });
+
+    it('should display error notification on update failure', () => {
+      activatedRoute.params = of({ id: '1' });
+      customerService.getCustomerById.and.returnValue(of({
+        success: true,
+        data: mockCustomer
+      }));
+      customerService.updateCustomer.and.returnValue(
+        throwError(() => ({ error: { message: 'Update failed' } }))
+      );
+
+      fixture.detectChanges();
+      component.onSubmit();
+      
+      expect(notificationService.showError).toHaveBeenCalled();
+    });
+
+    it('should handle customer load error in edit mode', () => {
+      activatedRoute.params = of({ id: '1' });
+      customerService.getCustomerById.and.returnValue(
+        throwError(() => ({ error: { message: 'Customer not found' } }))
+      );
+
+      fixture.detectChanges();
+      expect(notificationService.showError).toHaveBeenCalled();
+    });
+  });
+
+  describe('Customer Type Selection', () => {
+    beforeEach(() => {
+      fixture.detectChanges();
+    });
+
+    it('should have residential and commercial options', () => {
+      expect(component.customerTypes).toContain('residential');
+      expect(component.customerTypes).toContain('commercial');
+    });
+
+    it('should allow selecting customer type', () => {
+      const customerTypeControl = component.customerForm.get('customerType');
+      customerTypeControl?.setValue('commercial');
+      expect(customerTypeControl?.value).toBe('commercial');
+    });
+  });
+
+  describe('Button States', () => {
+    it('should display Create button in create mode', () => {
+      activatedRoute.params = of({});
+      fixture.detectChanges();
+      
+      const compiled = fixture.nativeElement;
+      const submitButton = compiled.querySelector('button[type="submit"]');
+      expect(submitButton?.textContent).toContain('Create');
+    });
+
+    it('should display Update button in edit mode', () => {
+      activatedRoute.params = of({ id: '1' });
+      customerService.getCustomerById.and.returnValue(of({
+        success: true,
+        data: mockCustomer
+      }));
+      fixture.detectChanges();
+      
+      const compiled = fixture.nativeElement;
+      const submitButton = compiled.querySelector('button[type="submit"]');
+      expect(submitButton?.textContent).toContain('Update');
+    });
+
+    it('should disable submit button when form is invalid', () => {
+      fixture.detectChanges();
+      component.customerForm.patchValue({ name: '' });
+      fixture.detectChanges();
+      
+      const compiled = fixture.nativeElement;
+      const submitButton = compiled.querySelector('button[type="submit"]');
+      expect(submitButton?.disabled).toBeTrue();
+    });
+  });

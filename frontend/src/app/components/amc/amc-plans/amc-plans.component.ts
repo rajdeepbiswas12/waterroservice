@@ -11,6 +11,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AmcService, AmcPlan } from '../../../services/amc.service';
 import { NotificationService } from '../../../services/notification.service';
 
@@ -127,7 +129,9 @@ export class AmcPlanDialogComponent {
     MatButtonModule,
     MatIconModule,
     MatTableModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTooltipModule,
+    MatProgressSpinnerModule
   ],
   templateUrl: './amc-plans.component.html',
   styleUrls: ['./amc-plans.component.css']

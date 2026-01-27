@@ -28,17 +28,37 @@ import { AuthService } from '../../../services/auth.service';
 export class EmployeeDashboardComponent implements OnInit {
   userName: string = '';
   userEmail: string = '';
+  sidenavOpened = true;
+  isMobileView = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.checkScreenSize();
+  }
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
       this.userName = currentUser.name || 'Employee';
       this.userEmail = currentUser.email || '';
+    }
+    window.addEventListener('resize', () => this.checkScreenSize());
+  }
+
+  checkScreenSize(): void {
+    this.isMobileView = window.innerWidth <= 1024;
+    this.sidenavOpened = !this.isMobileView;
+  }
+
+  toggleSidenav(): void {
+    this.sidenavOpened = !this.sidenavOpened;
+  }
+
+  onMenuItemClick(): void {
+    if (this.isMobileView) {
+      this.sidenavOpened = false;
     }
   }
 

@@ -1,12 +1,15 @@
 <mat-toolbar color="primary" class="header">
+  <button mat-icon-button (click)="toggleSidenav()" class="menu-button">
+    <mat-icon>menu</mat-icon>
+  </button>
   <span class="logo">
     <mat-icon>water_drop</mat-icon>
-    RO Service Tracking
+    <span class="logo-text">RO Service Tracking</span>
   </span>
   <span class="spacer"></span>
   <span class="user-info">
     <mat-icon>person</mat-icon>
-    {{ userName }}
+    <span class="user-name">{{ userName }}</span>
   </span>
   <button mat-icon-button (click)="logout()" matTooltip="Logout">
     <mat-icon>logout</mat-icon>
@@ -14,9 +17,16 @@
 </mat-toolbar>
 
 <mat-sidenav-container class="sidenav-container">
-  <mat-sidenav mode="side" opened class="sidenav">
+  <mat-sidenav 
+    [mode]="isMobileView ? 'over' : 'side'" 
+    [opened]="sidenavOpened"
+    (closedStart)="sidenavOpened = false"
+    class="sidenav">
     <mat-nav-list>
-      <a mat-list-item routerLink="/employee/orders" routerLinkActive="active">
+      <a mat-list-item 
+         routerLink="/employee/orders" 
+         routerLinkActive="active"
+         (click)="onMenuItemClick()">
         <mat-icon matListItemIcon>assignment</mat-icon>
         <span matListItemTitle>My Orders</span>
       </a>

@@ -27,6 +27,9 @@ import { AuthService } from '../../../services/auth.service';
 })
 export class AdminDashboardComponent implements OnInit {
   currentUser: any;
+  sidenavOpened = true;
+  isMobileView = false;
+  
   menuItems = [
     { icon: 'dashboard', label: 'Dashboard', route: '/admin/dashboard' },
     { icon: 'assignment', label: 'Orders', route: '/admin/orders' },
@@ -41,10 +44,29 @@ export class AdminDashboardComponent implements OnInit {
   constructor(
     public authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.checkScreenSize();
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authService.currentUserValue;
+    window.addEventListener('resize', () => this.checkScreenSize());
+  }
+
+  checkScreenSize(): void {
+    this.isMobileView = window.innerWidth <= 1024;
+    this.sidenavOpened = !this.isMobileView;
+  }
+
+  toggleSidenav(): void {
+    this.sidenavOpened = !this.sidenavOpened;
+  }
+
+  onMenuItemClick(): void {
+    // Close sidenav on mobile when menu item is clicked
+    if (this.isMobileView) {
+      this.sidenavOpened = false;
+    }
   }
 
   logout(): void {

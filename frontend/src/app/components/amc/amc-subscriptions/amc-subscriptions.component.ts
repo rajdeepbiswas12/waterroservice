@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AmcService, AmcSubscription } from '../../../services/amc.service';
 import { NotificationService } from '../../../services/notification.service';
 
@@ -26,7 +27,8 @@ import { NotificationService } from '../../../services/notification.service';
     MatPaginatorModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatChipsModule
+    MatChipsModule,
+    MatTooltipModule
   ],
   templateUrl: './amc-subscriptions.component.html',
   styleUrls: ['./amc-subscriptions.component.css']
@@ -83,7 +85,7 @@ export class AmcSubscriptionsComponent implements OnInit {
   }
 
   viewSubscription(subscription: AmcSubscription): void {
-    this.router.navigate(['/amc/subscriptions', subscription.id]);
+    this.router.navigate(['/admin/amc/subscriptions', subscription.id]);
   }
 
   cancelSubscription(subscription: AmcSubscription): void {
@@ -103,7 +105,7 @@ export class AmcSubscriptionsComponent implements OnInit {
   }
 
   addSubscription(): void {
-    this.router.navigate(['/amc/subscriptions/new']);
+    this.router.navigate(['/admin/amc/subscriptions/new']);
   }
 
   getStatusColor(status: string): string {

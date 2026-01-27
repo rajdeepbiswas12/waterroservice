@@ -102,7 +102,7 @@ export class CustomerFormComponent implements OnInit {
         this.notificationService.showSuccess(
           `Customer ${this.isEditMode ? 'updated' : 'created'} successfully`
         );
-        this.router.navigate(['/customers']);
+        this.router.navigate(['/admin/customers']);
       },
       error: (error) => {
         console.error('Error saving customer:', error);
@@ -115,7 +115,7 @@ export class CustomerFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/customers']);
+    this.router.navigate(['/admin/customers']);
   }
 
   getErrorMessage(fieldName: string): string {

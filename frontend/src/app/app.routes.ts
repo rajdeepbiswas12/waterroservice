@@ -19,6 +19,7 @@ import { CustomerListComponent } from './components/customers/customer-list/cust
 import { CustomerFormComponent } from './components/customers/customer-form/customer-form.component';
 import { AmcPlansComponent } from './components/amc/amc-plans/amc-plans.component';
 import { AmcSubscriptionsComponent } from './components/amc/amc-subscriptions/amc-subscriptions.component';
+import { AmcSubscriptionFormComponent } from './components/amc/amc-subscription-form/amc-subscription-form.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -47,6 +48,9 @@ export const routes: Routes = [
       { path: 'customers/:id/edit', component: CustomerFormComponent },
       { path: 'amc/plans', component: AmcPlansComponent },
       { path: 'amc/subscriptions', component: AmcSubscriptionsComponent },
+      { path: 'amc/subscriptions/new', component: AmcSubscriptionFormComponent },
+      { path: 'amc/subscriptions/:id', component: AmcSubscriptionFormComponent },
+      { path: 'amc/subscriptions/:id/edit', component: AmcSubscriptionFormComponent },
     ]
   },
   {
