@@ -144,6 +144,17 @@ exports.createCustomer = async (req, res) => {
       });
     }
 
+    // Validate email format if provided
+    if (email && email.trim() !== '') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+    }
+
     // Check if phone already exists
     const existingCustomer = await Customer.findOne({ where: { phone } });
     if (existingCustomer) {
@@ -153,16 +164,27 @@ exports.createCustomer = async (req, res) => {
       });
     }
 
+    // Check if email already exists (only if email is provided)
+    if (email && email.trim() !== '') {
+      const existingEmail = await Customer.findOne({ where: { email } });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Customer with this email already exists'
+        });
+      }
+    }
+
     // Generate customer number
     const customerNumber = generateCustomerNumber();
 
-    // Create customer
+    // Create customer - set email to null if empty
     const customer = await Customer.create({
       customerNumber,
       name,
       phone,
-      email,
-      alternatePhone,
+      email: email && email.trim() !== '' ? email : null,
+      alternatePhone: alternatePhone && alternatePhone.trim() !== '' ? alternatePhone : null,
       address,
       city,
       state,
@@ -170,7 +192,7 @@ exports.createCustomer = async (req, res) => {
       latitude,
       longitude,
       customerType: customerType || 'residential',
-      gstNumber,
+      gstNumber: gstNumber && gstNumber.trim() !== '' ? gstNumber : null,
       notes,
       status: 'active',
       registeredBy: req.user.id
@@ -183,6 +205,16 @@ exports.createCustomer = async (req, res) => {
     });
   } catch (error) {
     console.error('Error creating customer:', error);
+    
+    // Handle Sequelize validation errors
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        error: error.errors.map(e => e.message).join(', ')
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Error creating customer',
@@ -231,11 +263,30 @@ exports.updateCustomer = async (req, res) => {
       }
     }
 
+    // Check if email is being changed and if it's already taken
+    if (email && email.trim() !== '' && email !== customer.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid email format'
+        });
+      }
+      
+      const existingEmail = await Customer.findOne({ where: { email } });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email already in use'
+        });
+      }
+    }
+
     await customer.update({
       name: name || customer.name,
       phone: phone || customer.phone,
-      email: email !== undefined ? email : customer.email,
-      alternatePhone: alternatePhone !== undefined ? alternatePhone : customer.alternatePhone,
+      email: email !== undefined ? (email && email.trim() !== '' ? email : null) : customer.email,
+      alternatePhone: alternatePhone !== undefined ? (alternatePhone && alternatePhone.trim() !== '' ? alternatePhone : null) : customer.alternatePhone,
       address: address || customer.address,
       city: city !== undefined ? city : customer.city,
       state: state !== undefined ? state : customer.state,
@@ -243,7 +294,7 @@ exports.updateCustomer = async (req, res) => {
       latitude: latitude !== undefined ? latitude : customer.latitude,
       longitude: longitude !== undefined ? longitude : customer.longitude,
       customerType: customerType || customer.customerType,
-      gstNumber: gstNumber !== undefined ? gstNumber : customer.gstNumber,
+      gstNumber: gstNumber !== undefined ? (gstNumber && gstNumber.trim() !== '' ? gstNumber : null) : customer.gstNumber,
       status: status || customer.status,
       notes: notes !== undefined ? notes : customer.notes
     });
@@ -255,6 +306,16 @@ exports.updateCustomer = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating customer:', error);
+    
+    // Handle Sequelize validation errors
+    if (error.name === 'SequelizeValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        error: error.errors.map(e => e.message).join(', ')
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Error updating customer',

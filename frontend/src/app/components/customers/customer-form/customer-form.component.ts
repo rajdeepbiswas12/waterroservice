@@ -55,16 +55,16 @@ export class CustomerFormComponent implements OnInit {
 
   initForm(): void {
     this.customerForm = this.fb.group({
-      name: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(2)]],
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      email: ['', [Validators.email]],
+      email: [''],
       alternatePhone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
-      address: ['', Validators.required],
+      address: ['', [Validators.required, Validators.minLength(10)]],
       city: [''],
       state: [''],
-      postalCode: [''],
+      postalCode: ['', [Validators.pattern(/^[0-9]{6}$/)]],
       customerType: ['residential'],
-      gstNumber: [''],
+      gstNumber: ['', [Validators.pattern(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/)]],
       notes: ['']
     });
   }
@@ -87,11 +87,32 @@ export class CustomerFormComponent implements OnInit {
   onSubmit(): void {
     if (this.customerForm.invalid) {
       this.customerForm.markAllAsTouched();
+      this.notificationService.showError('Please fill all required fields correctly');
       return;
     }
 
     this.loading = true;
-    const formData = this.customerForm.value;
+    const formData = { ...this.customerForm.value };
+
+    // Clean empty email to prevent validation errors
+    if (formData.email && !this.isValidEmail(formData.email)) {
+      this.notificationService.showError('Please enter a valid email address');
+      this.loading = false;
+      return;
+    }
+    
+    // Remove email if empty to avoid backend validation error
+    if (!formData.email || formData.email.trim() === '') {
+      delete formData.email;
+    }
+    
+    // Remove empty optional fields
+    if (!formData.alternatePhone || formData.alternatePhone.trim() === '') {
+      delete formData.alternatePhone;
+    }
+    if (!formData.gstNumber || formData.gstNumber.trim() === '') {
+      delete formData.gstNumber;
+    }
 
     const request = this.isEditMode
       ? this.customerService.updateCustomer(this.customerId!, formData)
@@ -106,12 +127,17 @@ export class CustomerFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error saving customer:', error);
-        this.notificationService.showError(
-          error.error?.message || 'Failed to save customer'
-        );
+        const errorMessage = error.error?.message || error.error?.error || 'Failed to save customer';
+        this.notificationService.showError(errorMessage);
         this.loading = false;
       }
     });
+  }
+
+  isValidEmail(email: string): boolean {
+    if (!email || email.trim() === '') return true; // Empty is valid
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   onCancel(): void {
@@ -126,9 +152,28 @@ export class CustomerFormComponent implements OnInit {
     if (control?.hasError('email')) {
       return 'Invalid email format';
     }
+    if (control?.hasError('minLength')) {
+      const minLength = control.errors?.['minLength'].requiredLength;
+      return `Minimum ${minLength} characters required`;
+    }
     if (control?.hasError('pattern')) {
+      if (fieldName === 'phone' || fieldName === 'alternatePhone') {
+        return 'Please enter a valid 10-digit phone number';
+      }
+      if (fieldName === 'postalCode') {
+        return 'Please enter a valid 6-digit PIN code';
+      }
+      if (fieldName === 'gstNumber') {
+        return 'Invalid GST number format';
+      }
       return 'Invalid format';
     }
     return '';
+  }
+
+  // Helper method to check if field should show error
+  shouldShowError(fieldName: string): boolean {
+    const control = this.customerForm.get(fieldName);
+    return !!(control && control.invalid && (control.dirty || control.touched));
   }
 }

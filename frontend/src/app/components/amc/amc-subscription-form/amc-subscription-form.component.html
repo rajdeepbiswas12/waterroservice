@@ -1,158 +1,325 @@
 <div class="subscription-form-container">
-  <mat-card>
+  <!-- Loading Overlay -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p class="mt-3">{{ isEditMode ? 'Loading' : 'Processing' }} subscription...</p>
+  </div>
+
+  <mat-card class="form-card">
     <mat-card-header>
       <mat-card-title>
         <div class="header-title">
-          <mat-icon>assignment</mat-icon>
-          <span>{{ isEditMode ? 'Edit' : 'Create' }} AMC Subscription</span>
+          <mat-icon class="header-icon">{{ isEditMode ? 'edit_note' : 'add_circle' }}</mat-icon>
+          <span>{{ isEditMode ? 'Edit' : 'Create New' }} AMC Subscription</span>
         </div>
       </mat-card-title>
     </mat-card-header>
 
     <mat-card-content>
       <form [formGroup]="subscriptionForm" (ngSubmit)="onSubmit()">
-        <div class="form-grid">
-          <!-- Customer Selection -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Customer</mat-label>
-            <mat-select formControlName="customerId" required>
-              <mat-option *ngFor="let customer of customers" [value]="customer.id">
-                {{ getCustomerDisplay(customer) }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="subscriptionForm.get('customerId')?.hasError('required')">
-              Customer is required
-            </mat-error>
-          </mat-form-field>
+        
+        <!-- Customer & Plan Section -->
+        <div class="form-section">
+          <h4 class="section-title">
+            <mat-icon>people</mat-icon>
+            Customer & Plan Details
+          </h4>
+          
+          <div class="form-grid">
+            <!-- Customer Selection -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select Customer <span class="required">*</span></mat-label>
+              <mat-select formControlName="customerId" required>
+                <mat-option *ngFor="let customer of customers" [value]="customer.id">
+                  {{ getCustomerDisplay(customer) }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>badge</mat-icon>
+              <mat-error *ngIf="subscriptionForm.get('customerId')?.hasError('required')">
+                Please select a customer
+              </mat-error>
+              <mat-hint>Choose the customer for this subscription</mat-hint>
+            </mat-form-field>
 
-          <!-- Plan Selection -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>AMC Plan</mat-label>
-            <mat-select formControlName="planId" required>
-              <mat-option *ngFor="let plan of plans" [value]="plan.id">
-                {{ getPlanDisplay(plan) }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="subscriptionForm.get('planId')?.hasError('required')">
-              Plan is required
-            </mat-error>
-          </mat-form-field>
+            <!-- Plan Selection -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Select AMC Plan <span class="required">*</span></mat-label>
+              <mat-select formControlName="planId" required>
+                <mat-option *ngFor="let plan of plans" [value]="plan.id">
+                  {{ getPlanDisplay(plan) }}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>assignment</mat-icon>
+              <mat-error *ngIf="subscriptionForm.get('planId')?.hasError('required')">
+                Please select an AMC plan
+              </mat-error>
+              <mat-hint>Select the maintenance plan</mat-hint>
+            </mat-form-field>
+          </div>
+        </div>
 
-          <!-- Start Date -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Start Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="startDate" required>
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            <mat-error *ngIf="subscriptionForm.get('startDate')?.hasError('required')">
-              Start date is required
-            </mat-error>
-          </mat-form-field>
+        <!-- Plan Details Display -->
+        <div class="form-section plan-details-section" *ngIf="selectedPlan">
+          <h4 class="section-title">
+            <mat-icon>info</mat-icon>
+            Selected Plan Information
+          </h4>
+          
+          <div class="plan-info-card">
+            <div class="plan-header">
+              <div class="plan-name">
+                <mat-icon>verified_user</mat-icon>
+                <span>{{ selectedPlan.planName }}</span>
+              </div>
+              <mat-chip class="status-chip" [class.active]="selectedPlan.isActive">
+                {{ selectedPlan.isActive ? 'Active' : 'Inactive' }}
+              </mat-chip>
+            </div>
+            
+            <div class="plan-description" *ngIf="selectedPlan.description">
+              <p>{{ selectedPlan.description }}</p>
+            </div>
 
-          <!-- Plan Details (if selected) -->
-          <div class="plan-details full-width" *ngIf="selectedPlan">
-            <mat-card class="info-card">
-              <mat-card-header>
-                <mat-card-title>Plan Details</mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="details-grid">
-                  <div class="detail-item">
-                    <span class="label">Duration:</span>
-                    <span class="value">{{ selectedPlan.duration }} months</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">Visits:</span>
-                    <span class="value">{{ selectedPlan.numberOfVisits }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">Base Price:</span>
-                    <span class="value">₹{{ selectedPlan.price }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <span class="label">GST ({{ selectedPlan.gst || 18 }}%):</span>
-                    <span class="value">₹{{ (selectedPlan.price * (selectedPlan.gst || 18) / 100).toFixed(2) }}</span>
-                  </div>
-                  <div class="detail-item total">
-                    <span class="label">Total Amount:</span>
-                    <span class="value">₹{{ getTotalAmount().toFixed(2) }}</span>
-                  </div>
+            <div class="plan-details-grid">
+              <div class="detail-card">
+                <mat-icon>calendar_month</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Duration</span>
+                  <span class="detail-value">{{ selectedPlan.duration }} Months</span>
                 </div>
-              </mat-card-content>
-            </mat-card>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>event_available</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Visits Included</span>
+                  <span class="detail-value">{{ selectedPlan.numberOfVisits }} Visits</span>
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>build</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Service Type</span>
+                  <span class="detail-value">{{ selectedPlan.serviceType }}</span>
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>schedule</mat-icon>
+                <div class="detail-content">
+                  <span class="detail-label">Visit Frequency</span>
+                  <span class="detail-value">Every {{ (selectedPlan.duration * 30 / selectedPlan.numberOfVisits).toFixed(0) }} days</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pricing-breakdown">
+              <div class="price-row">
+                <span class="price-label">Base Price:</span>
+                <span class="price-value">₹{{ selectedPlan.price | number:'1.2-2' }}</span>
+              </div>
+              <div class="price-row">
+                <span class="price-label">GST ({{ selectedPlan.gst || 18 }}%):</span>
+                <span class="price-value">₹{{ getGSTAmount() | number:'1.2-2' }}</span>
+              </div>
+              <div class="price-row total-row">
+                <span class="price-label">Total Amount:</span>
+                <span class="price-value">₹{{ getTotalAmount() | number:'1.2-2' }}</span>
+              </div>
+              <div class="price-row per-visit-row">
+                <span class="price-label">Per Visit Cost:</span>
+                <span class="price-value">₹{{ (getTotalAmount() / selectedPlan.numberOfVisits) | number:'1.2-2' }}</span>
+              </div>
+            </div>
           </div>
+        </div>
 
-          <!-- Payment Mode -->
-          <mat-form-field appearance="outline">
-            <mat-label>Payment Mode</mat-label>
-            <mat-select formControlName="paymentMode" required>
-              <mat-option *ngFor="let mode of paymentModes" [value]="mode">
-                {{ mode }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="subscriptionForm.get('paymentMode')?.hasError('required')">
-              Payment mode is required
-            </mat-error>
-          </mat-form-field>
+        <!-- Subscription Period Section -->
+        <div class="form-section">
+          <h4 class="section-title">
+            <mat-icon>date_range</mat-icon>
+            Subscription Period
+          </h4>
+          
+          <div class="form-grid">
+            <!-- Start Date -->
+            <mat-form-field appearance="outline">
+              <mat-label>Start Date <span class="required">*</span></mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="startDate" required>
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-icon matPrefix>event</mat-icon>
+              <mat-error *ngIf="subscriptionForm.get('startDate')?.hasError('required')">
+                Start date is required
+              </mat-error>
+              <mat-hint>When the subscription begins</mat-hint>
+            </mat-form-field>
 
-          <!-- Payment Status -->
-          <mat-form-field appearance="outline">
-            <mat-label>Payment Status</mat-label>
-            <mat-select formControlName="paymentStatus" required>
-              <mat-option *ngFor="let status of paymentStatuses" [value]="status">
-                {{ status }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
+            <!-- End Date (Display Only) -->
+            <mat-form-field appearance="outline" *ngIf="getEndDate()">
+              <mat-label>End Date</mat-label>
+              <input matInput [value]="getEndDate() | date:'mediumDate'" readonly>
+              <mat-icon matPrefix>event_busy</mat-icon>
+              <mat-hint>Auto-calculated based on plan duration</mat-hint>
+            </mat-form-field>
 
-          <!-- Paid Amount -->
-          <mat-form-field appearance="outline">
-            <mat-label>Paid Amount</mat-label>
-            <input matInput type="number" formControlName="paidAmount" required min="0">
-            <span matPrefix>₹&nbsp;</span>
-            <mat-error *ngIf="subscriptionForm.get('paidAmount')?.hasError('required')">
-              Paid amount is required
-            </mat-error>
-            <mat-error *ngIf="subscriptionForm.get('paidAmount')?.hasError('min')">
-              Amount cannot be negative
-            </mat-error>
-          </mat-form-field>
-
-          <!-- Balance Amount (Display Only) -->
-          <mat-form-field appearance="outline" *ngIf="selectedPlan">
-            <mat-label>Balance Amount</mat-label>
-            <input matInput [value]="'₹' + getBalanceAmount().toFixed(2)" readonly>
-          </mat-form-field>
-
-          <!-- Transaction ID -->
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Transaction ID (Optional)</mat-label>
-            <input matInput formControlName="transactionId" placeholder="Enter transaction reference">
-          </mat-form-field>
-
-          <!-- Auto Renewal -->
-          <div class="checkbox-field full-width">
-            <mat-checkbox formControlName="autoRenewal">
-              Enable Auto Renewal
-            </mat-checkbox>
+            <!-- Auto Renewal -->
+            <div class="checkbox-container full-width">
+              <mat-checkbox formControlName="autoRenewal" class="auto-renewal-checkbox">
+                <span class="checkbox-content">
+                  <mat-icon>autorenew</mat-icon>
+                  <span class="checkbox-label">Enable Auto-Renewal</span>
+                </span>
+              </mat-checkbox>
+              <p class="checkbox-hint">
+                {{ subscriptionForm.get('autoRenewal')?.value 
+                  ? 'Subscription will automatically renew at the end of the period' 
+                  : 'Subscription will not renew automatically' }}
+              </p>
+            </div>
           </div>
+        </div>
 
-          <!-- Notes -->
+        <!-- Payment Details Section -->
+        <div class="form-section payment-section">
+          <h4 class="section-title">
+            <mat-icon>payment</mat-icon>
+            Payment Information
+          </h4>
+          
+          <div class="form-grid">
+            <!-- Payment Mode -->
+            <mat-form-field appearance="outline">
+              <mat-label>Payment Mode <span class="required">*</span></mat-label>
+              <mat-select formControlName="paymentMode" required>
+                <mat-option value="Cash">Cash</mat-option>
+                <mat-option value="Card">Card</mat-option>
+                <mat-option value="UPI">UPI</mat-option>
+                <mat-option value="Net Banking">Net Banking</mat-option>
+                <mat-option value="Cheque">Cheque</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>payment</mat-icon>
+              <mat-error *ngIf="subscriptionForm.get('paymentMode')?.hasError('required')">
+                Payment mode is required
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Payment Status -->
+            <mat-form-field appearance="outline">
+              <mat-label>Payment Status <span class="required">*</span></mat-label>
+              <mat-select formControlName="paymentStatus" required>
+                <mat-option value="Paid">Paid (Full Payment)</mat-option>
+                <mat-option value="Partial">Partial Payment</mat-option>
+                <mat-option value="Pending">Pending</mat-option>
+              </mat-select>
+              <mat-icon matPrefix>info</mat-icon>
+            </mat-form-field>
+
+            <!-- Paid Amount -->
+            <mat-form-field appearance="outline">
+              <mat-label>Amount Paid <span class="required">*</span></mat-label>
+              <input matInput type="number" formControlName="paidAmount" 
+                     required min="0.01" step="0.01" [max]="getTotalAmount()">
+              <span matTextPrefix>₹&nbsp;</span>
+              <mat-icon matPrefix>currency_rupee</mat-icon>
+              <mat-error *ngIf="subscriptionForm.get('paidAmount')?.hasError('required')">
+                Paid amount is required
+              </mat-error>
+              <mat-error *ngIf="subscriptionForm.get('paidAmount')?.hasError('min')">
+                Amount must be at least ₹0.01
+              </mat-error>
+              <mat-hint *ngIf="selectedPlan">Maximum: ₹{{ getTotalAmount() | number:'1.2-2' }}</mat-hint>
+            </mat-form-field>
+
+            <!-- Balance Amount (Display Only) -->
+            <mat-form-field appearance="outline" *ngIf="selectedPlan">
+              <mat-label>Balance Amount</mat-label>
+              <input matInput [value]="'₹' + getBalanceAmount().toFixed(2)" readonly
+                     [class.balance-zero]="getBalanceAmount() === 0"
+                     [class.balance-pending]="getBalanceAmount() > 0">
+              <mat-icon matPrefix [class.text-success]="getBalanceAmount() === 0" 
+                        [class.text-warning]="getBalanceAmount() > 0">
+                {{ getBalanceAmount() === 0 ? 'check_circle' : 'warning' }}
+              </mat-icon>
+              <mat-hint>Remaining amount to be paid</mat-hint>
+            </mat-form-field>
+
+            <!-- Transaction ID -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Transaction ID / Reference (Optional)</mat-label>
+              <input matInput formControlName="transactionId" 
+                     placeholder="Enter transaction reference number" maxlength="100">
+              <mat-icon matPrefix>confirmation_number</mat-icon>
+              <mat-error *ngIf="subscriptionForm.get('transactionId')?.hasError('maxlength')">
+                Maximum 100 characters allowed
+              </mat-error>
+              <mat-hint align="end">{{ subscriptionForm.get('transactionId')?.value?.length || 0 }}/100</mat-hint>
+            </mat-form-field>
+
+            <!-- Payment Summary Card -->
+            <div class="payment-summary-card full-width" *ngIf="selectedPlan">
+              <div class="summary-header">
+                <mat-icon>receipt</mat-icon>
+                <span>Payment Summary</span>
+              </div>
+              <div class="summary-content">
+                <div class="summary-item">
+                  <span class="label">Total Amount:</span>
+                  <span class="value total">₹{{ getTotalAmount() | number:'1.2-2' }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Amount Paid:</span>
+                  <span class="value paid">₹{{ subscriptionForm.get('paidAmount')?.value | number:'1.2-2' }}</span>
+                </div>
+                <div class="summary-item">
+                  <span class="label">Balance Due:</span>
+                  <span class="value balance" [class.zero]="getBalanceAmount() === 0">
+                    ₹{{ getBalanceAmount() | number:'1.2-2' }}
+                  </span>
+                </div>
+                <div class="summary-item status-item">
+                  <span class="label">Payment Status:</span>
+                  <mat-chip class="status-chip" [class]="'status-' + subscriptionForm.get('paymentStatus')?.value?.toLowerCase()">
+                    {{ subscriptionForm.get('paymentStatus')?.value }}
+                  </mat-chip>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Notes Section -->
+        <div class="form-section notes-section">
+          <h4 class="section-title">
+            <mat-icon>notes</mat-icon>
+            Additional Information
+          </h4>
+          
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Notes (Optional)</mat-label>
-            <textarea matInput formControlName="notes" rows="3" 
-                      placeholder="Any additional notes or comments"></textarea>
+            <textarea matInput formControlName="notes" rows="4" 
+                      placeholder="Add any special instructions, terms, or remarks..."
+                      maxlength="500"></textarea>
+            <mat-icon matPrefix>description</mat-icon>
+            <mat-error *ngIf="subscriptionForm.get('notes')?.hasError('maxlength')">
+              Maximum 500 characters allowed
+            </mat-error>
+            <mat-hint align="end">{{ subscriptionForm.get('notes')?.value?.length || 0 }}/500</mat-hint>
           </mat-form-field>
         </div>
 
         <!-- Action Buttons -->
         <div class="form-actions">
-          <button mat-raised-button type="button" (click)="onCancel()" [disabled]="loading">
+          <button mat-stroked-button type="button" (click)="onCancel()" [disabled]="loading">
+            <mat-icon>close</mat-icon>
             Cancel
           </button>
-          <button mat-raised-button color="primary" type="submit" [disabled]="loading || subscriptionForm.invalid">
+          <button mat-raised-button color="primary" type="submit" 
+                  [disabled]="loading || subscriptionForm.invalid">
+            <mat-icon *ngIf="!loading">{{ isEditMode ? 'save' : 'add_circle' }}</mat-icon>
             <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
-            <span *ngIf="!loading">{{ isEditMode ? 'Update' : 'Create' }} Subscription</span>
+            <span>{{ loading ? 'Processing...' : (isEditMode ? 'Update Subscription' : 'Create Subscription') }}</span>
           </button>
         </div>
       </form>

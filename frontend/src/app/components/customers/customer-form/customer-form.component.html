@@ -29,11 +29,15 @@
               
               <mat-form-field class="w-100 mb-3" appearance="outline">
                 <mat-label>Full Name <span class="required-indicator">*</span></mat-label>
-                <input matInput formControlName="name" placeholder="Enter full name">
+                <input matInput formControlName="name" placeholder="Enter full name" maxlength="100">
                 <mat-icon matPrefix>badge</mat-icon>
                 <mat-error *ngIf="customerForm.get('name')?.hasError('required')">
                   Name is required
                 </mat-error>
+                <mat-error *ngIf="customerForm.get('name')?.hasError('minlength')">
+                  Name must be at least 2 characters
+                </mat-error>
+                <mat-hint align="end">{{ customerForm.get('name')?.value?.length || 0 }}/100</mat-hint>
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
@@ -49,21 +53,27 @@
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
-                <mat-label>Email Address</mat-label>
-                <input matInput formControlName="email" type="email" placeholder="email@example.com">
+                <mat-label>Email Address (Optional)</mat-label>
+                <input matInput formControlName="email" type="email" 
+                       placeholder="customer@example.com" maxlength="100">
                 <mat-icon matPrefix>email</mat-icon>
-                <mat-error *ngIf="customerForm.get('email')?.hasError('email')">
-                  Please enter a valid email address
+                <mat-error *ngIf="!customerForm.get('email')?.value && customerForm.get('email')?.touched">
+                  Email is optional, but if provided must be valid
                 </mat-error>
+                <mat-hint *ngIf="customerForm.get('email')?.value">Please enter a valid email format</mat-hint>
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
-                <mat-label>Alternate Phone</mat-label>
-                <input matInput formControlName="alternatePhone" placeholder="10 digit number" maxlength="10">
+                <mat-label>Alternate Phone (Optional)</mat-label>
+                <input matInput formControlName="alternatePhone" placeholder="10 digit number" 
+                       maxlength="10" type="tel">
                 <mat-icon matPrefix>phone_in_talk</mat-icon>
                 <mat-error *ngIf="customerForm.get('alternatePhone')?.hasError('pattern')">
                   Please enter a valid 10-digit phone number
                 </mat-error>
+                <mat-hint *ngIf="customerForm.get('alternatePhone')?.value">
+                  {{ customerForm.get('alternatePhone')?.value?.length || 0 }}/10
+                </mat-hint>
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
@@ -86,9 +96,18 @@
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
-                <mat-label>GST Number</mat-label>
-                <input matInput formControlName="gstNumber" placeholder="For business customers">
+                <mat-label>GST Number (Optional)</mat-label>
+                <input matInput formControlName="gstNumber" 
+                       placeholder="For business customers" 
+                       maxlength="15"
+                       style="text-transform: uppercase;">
                 <mat-icon matPrefix>receipt</mat-icon>
+                <mat-error *ngIf="customerForm.get('gstNumber')?.hasError('pattern')">
+                  Invalid GST format (e.g., 22AAAAA0000A1Z5)
+                </mat-error>
+                <mat-hint *ngIf="customerForm.get('gstNumber')?.value">
+                  Format: 22AAAAA0000A1Z5
+                </mat-hint>
               </mat-form-field>
             </div>
           </div>
@@ -104,11 +123,16 @@
               <mat-form-field class="w-100 mb-3" appearance="outline">
                 <mat-label>Address <span class="required-indicator">*</span></mat-label>
                 <textarea matInput formControlName="address" rows="3" 
-                          placeholder="Enter full address"></textarea>
+                          placeholder="Enter complete address with landmarks"
+                          maxlength="500"></textarea>
                 <mat-icon matPrefix>home_work</mat-icon>
                 <mat-error *ngIf="customerForm.get('address')?.hasError('required')">
                   Address is required
                 </mat-error>
+                <mat-error *ngIf="customerForm.get('address')?.hasError('minlength')">
+                  Address must be at least 10 characters
+                </mat-error>
+                <mat-hint align="end">{{ customerForm.get('address')?.value?.length || 0 }}/500</mat-hint>
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
@@ -124,9 +148,18 @@
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">
-                <mat-label>Postal Code</mat-label>
-                <input matInput formControlName="postalCode" placeholder="Enter PIN code" maxlength="6">
+                <mat-label>Postal Code (Optional)</mat-label>
+                <input matInput formControlName="postalCode" 
+                       placeholder="Enter 6-digit PIN" 
+                       maxlength="6" 
+                       type="tel">
                 <mat-icon matPrefix>markunread_mailbox</mat-icon>
+                <mat-error *ngIf="customerForm.get('postalCode')?.hasError('pattern')">
+                  Please enter a valid 6-digit PIN code
+                </mat-error>
+                <mat-hint *ngIf="customerForm.get('postalCode')?.value">
+                  {{ customerForm.get('postalCode')?.value?.length || 0 }}/6
+                </mat-hint>
               </mat-form-field>
 
               <mat-form-field class="w-100 mb-3" appearance="outline">

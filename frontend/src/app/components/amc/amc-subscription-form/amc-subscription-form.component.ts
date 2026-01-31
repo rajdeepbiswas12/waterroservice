@@ -12,6 +12,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
 import { AmcService, AmcSubscription, AmcPlan } from '../../../services/amc.service';
 import { CustomerService, Customer } from '../../../services/customer.service';
 import { NotificationService } from '../../../services/notification.service';
@@ -31,7 +32,8 @@ import { NotificationService } from '../../../services/notification.service';
     MatNativeDateModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    MatChipsModule
   ],
   templateUrl: './amc-subscription-form.component.html',
   styleUrls: ['./amc-subscription-form.component.css']
@@ -87,21 +89,24 @@ export class AmcSubscriptionFormComponent implements OnInit {
       startDate: [new Date(), Validators.required],
       paymentMode: ['', Validators.required],
       paymentStatus: ['Paid', Validators.required],
-      paidAmount: [0, [Validators.required, Validators.min(0)]],
-      transactionId: [''],
+      paidAmount: [0, [Validators.required, Validators.min(0.01)]],
+      transactionId: ['', Validators.maxLength(100)],
       autoRenewal: [false],
-      notes: ['']
+      notes: ['', Validators.maxLength(500)]
     });
   }
 
   loadCustomers(): void {
     this.customerService.getAllCustomers(1, 1000, '', 'active').subscribe({
       next: (response) => {
+        console.log('Customers loaded:', response);
         this.customers = response.data || response.customers || [];
+        console.log('Customers array:', this.customers.length);
       },
       error: (error) => {
         console.error('Error loading customers:', error);
         this.notificationService.showError('Failed to load customers');
+        this.customers = [];
       }
     });
   }
@@ -109,11 +114,14 @@ export class AmcSubscriptionFormComponent implements OnInit {
   loadPlans(): void {
     this.amcService.getAllPlans(true).subscribe({
       next: (response) => {
+        console.log('Plans loaded:', response);
         this.plans = response.data || response.plans || [];
+        console.log('Plans array:', this.plans.length);
       },
       error: (error) => {
         console.error('Error loading plans:', error);
         this.notificationService.showError('Failed to load AMC plans');
+        this.plans = [];
       }
     });
   }
@@ -148,15 +156,13 @@ export class AmcSubscriptionFormComponent implements OnInit {
     this.selectedPlan = this.plans.find(p => p.id === planId);
     if (this.selectedPlan) {
       // Calculate total amount including GST
-      const gst = this.selectedPlan.gst || 18;
-      const totalAmount = this.selectedPlan.price + (this.selectedPlan.price * gst / 100);
+      const totalAmount = this.getTotalAmount();
       
-      // Update paid amount if payment is full
-      if (this.subscriptionForm.get('paymentStatus')?.value === 'Paid') {
-        this.subscriptionForm.patchValue({
-          paidAmount: totalAmount
-        });
-      }
+      // Update paid amount to full amount by default
+      this.subscriptionForm.patchValue({
+        paidAmount: totalAmount,
+        paymentStatus: 'Paid'
+      }, { emitEvent: false });
     }
   }
 
@@ -236,10 +242,40 @@ export class AmcSubscriptionFormComponent implements OnInit {
   }
 
   getCustomerDisplay(customer: Customer): string {
-    return `${customer.name} - ${customer.phone}`;
+    return `${customer.name} - ${customer.phone}${customer.customerNumber ? ' (' + customer.customerNumber + ')' : ''}`;
   }
 
   getPlanDisplay(plan: AmcPlan): string {
-    return `${plan.planName} - ₹${plan.price} (${plan.duration} months)`;
+    const gst = plan.gst || 18;
+    const total = plan.price + (plan.price * gst / 100);
+    return `${plan.planName} - ₹${total.toFixed(0)} (${plan.duration} months, ${plan.numberOfVisits} visits)`;
+  }
+
+  getEndDate(): Date | null {
+    const startDate = this.subscriptionForm.get('startDate')?.value;
+    if (startDate && this.selectedPlan) {
+      const endDate = new Date(startDate);
+      endDate.setMonth(endDate.getMonth() + this.selectedPlan.duration);
+      return endDate;
+    }
+    return null;
+  }
+
+  getGSTAmount(): number {
+    if (this.selectedPlan) {
+      const gst = this.selectedPlan.gst || 18;
+      return (this.selectedPlan.price * gst) / 100;
+    }
+    return 0;
+  }
+
+  getPaymentStatusColor(): string {
+    const status = this.subscriptionForm.get('paymentStatus')?.value;
+    switch(status) {
+      case 'Paid': return 'success';
+      case 'Partial': return 'warn';
+      case 'Pending': return 'accent';
+      default: return '';
+    }
   }
 }
