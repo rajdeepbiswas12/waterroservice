@@ -1,0 +1,156 @@
+<div class="amc-assignment-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>verified_user</mat-icon>
+        Assign AMC Plan to Customer
+      </mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="assignmentForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <!-- Customer Search -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Search Customer</mat-label>
+            <input 
+              matInput 
+              formControlName="customerSearch" 
+              placeholder="Type customer name or phone..."
+              [matAutocomplete]="auto">
+            <mat-icon matSuffix>search</mat-icon>
+            <mat-autocomplete 
+              #auto="matAutocomplete" 
+              [displayWith]="displayCustomer"
+              (optionSelected)="onCustomerSelected($event.option.value)">
+              <mat-option *ngFor="let customer of filteredCustomers | async" [value]="customer">
+                <div class="customer-option">
+                  <strong>{{ customer.name }}</strong>
+                  <small>{{ customer.phone }} - {{ customer.city }}</small>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+            <mat-error *ngIf="assignmentForm.get('customerSearch')?.hasError('required')">
+              Customer is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Selected Customer Info -->
+        <div *ngIf="selectedCustomer" class="selected-customer-info">
+          <mat-icon>person</mat-icon>
+          <div class="customer-details">
+            <strong>{{ selectedCustomer.name }}</strong>
+            <p>Phone: {{ selectedCustomer.phone }}</p>
+            <p>Address: {{ selectedCustomer.address }}, {{ selectedCustomer.city }}</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- AMC Plan Selection -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Select AMC Plan</mat-label>
+            <mat-select formControlName="planId" (selectionChange)="onPlanSelected($event)">
+              <mat-option *ngFor="let plan of amcPlans" [value]="plan.id">
+                {{ plan.planName }} - ₹{{ plan.price }} ({{ plan.duration }} months)
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>assignment</mat-icon>
+            <mat-error *ngIf="assignmentForm.get('planId')?.hasError('required')">
+              AMC Plan is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Selected Plan Info -->
+        <div *ngIf="selectedPlan" class="selected-plan-info">
+          <h3>{{ selectedPlan.planName }}</h3>
+          <p class="plan-description">{{ selectedPlan.description }}</p>
+          <div class="plan-details">
+            <div class="detail-item">
+              <mat-icon>schedule</mat-icon>
+              <span>Duration: {{ selectedPlan.duration }} months</span>
+            </div>
+            <div class="detail-item">
+              <mat-icon>build</mat-icon>
+              <span>Service Type: {{ selectedPlan.serviceType }}</span>
+            </div>
+            <div class="detail-item">
+              <mat-icon>calendar_today</mat-icon>
+              <span>Visits: {{ selectedPlan.numberOfVisits }}</span>
+            </div>
+            <div class="detail-item">
+              <mat-icon>currency_rupee</mat-icon>
+              <span>Total Amount: ₹{{ calculateTotalAmount().toFixed(2) }} (incl. GST)</span>
+            </div>
+            <div class="detail-item" *ngIf="calculateEndDate()">
+              <mat-icon>event</mat-icon>
+              <span>End Date: {{ calculateEndDate() | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <!-- Start Date -->
+          <mat-form-field appearance="outline">
+            <mat-label>Start Date</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="startDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="assignmentForm.get('startDate')?.hasError('required')">
+              Start date is required
+            </mat-error>
+          </mat-form-field>
+
+          <!-- Payment Mode -->
+          <mat-form-field appearance="outline">
+            <mat-label>Payment Mode</mat-label>
+            <mat-select formControlName="paymentMode">
+              <mat-option *ngFor="let mode of paymentModes" [value]="mode">
+                {{ mode }}
+              </mat-option>
+            </mat-select>
+            <mat-icon matSuffix>payment</mat-icon>
+            <mat-error *ngIf="assignmentForm.get('paymentMode')?.hasError('required')">
+              Payment mode is required
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Transaction ID -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Transaction ID (Optional)</mat-label>
+            <input matInput formControlName="transactionId" placeholder="Enter transaction reference">
+            <mat-icon matSuffix>receipt</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <!-- Notes -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Notes (Optional)</mat-label>
+            <textarea matInput formControlName="notes" rows="3" placeholder="Any special notes or remarks"></textarea>
+            <mat-icon matSuffix>note</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <button mat-raised-button type="button" (click)="resetForm()" [disabled]="submitting">
+            <mat-icon>cancel</mat-icon>
+            Reset
+          </button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="assignmentForm.invalid || submitting">
+            <mat-icon>save</mat-icon>
+            <span *ngIf="!submitting">Assign AMC Plan</span>
+            <span *ngIf="submitting">Assigning...</span>
+          </button>
+        </div>
+      </form>
+
+      <div *ngIf="loading" class="loading-overlay">
+        <mat-spinner></mat-spinner>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

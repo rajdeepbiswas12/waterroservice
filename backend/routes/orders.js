@@ -10,13 +10,17 @@ const {
   deleteOrder,
   getOrderHistory,
   getDashboardStats,
-  getMonthlyStats
+  getMonthlyStats,
+  getEmployeeDashboardStats
 } = require('../controllers/orderController');
 const { protect, authorize } = require('../middleware/auth');
 const { cacheMiddleware, clearCache } = require('../middleware/cache');
 const { createOrderLimiter } = require('../middleware/rateLimiter');
 
 router.use(protect);
+
+// Employee dashboard stats
+router.get('/employee/dashboard-stats', authorize('employee', 'admin'), cacheMiddleware(120), getEmployeeDashboardStats);
 
 // Dashboard stats with caching (5 minutes)
 router.get('/dashboard/stats', authorize('admin'), cacheMiddleware(300), getDashboardStats);

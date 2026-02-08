@@ -791,3 +791,113 @@ exports.getMonthlyStats = async (req, res) => {
     });
   }
 };
+
+// @desc    Get employee dashboard statistics
+// @route   GET /api/orders/employee/dashboard-stats
+// @access  Private/Employee
+exports.getEmployeeDashboardStats = async (req, res) => {
+  try {
+    const { sequelize } = require('../config/database');
+    const { Op } = require('sequelize');
+    const employeeId = req.user.id;
+
+    // Today's date range
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // This month's date range
+    const firstDayOfMonth = new Date();
+    firstDayOfMonth.setDate(1);
+    firstDayOfMonth.setHours(0, 0, 0, 0);
+
+    // Daily assignments (today)
+    const dailyAssignments = await Order.count({
+      where: {
+        assignedToId: employeeId,
+        createdAt: {
+          [Op.gte]: today,
+          [Op.lt]: tomorrow
+        }
+      }
+    });
+
+    // Daily completed (today)
+    const dailyCompleted = await Order.count({
+      where: {
+        assignedToId: employeeId,
+        status: 'completed',
+        completedDate: {
+          [Op.gte]: today,
+          [Op.lt]: tomorrow
+        }
+      }
+    });
+
+    // Monthly assignments
+    const monthlyAssignments = await Order.count({
+      where: {
+        assignedToId: employeeId,
+        createdAt: {
+          [Op.gte]: firstDayOfMonth
+        }
+      }
+    });
+
+    // Monthly completed
+    const monthlyCompleted = await Order.count({
+      where: {
+        assignedToId: employeeId,
+        status: 'completed',
+        completedDate: {
+          [Op.gte]: firstDayOfMonth
+        }
+      }
+    });
+
+    // Current active orders
+    const activeOrders = await Order.count({
+      where: {
+        assignedToId: employeeId,
+        status: ['assigned', 'in-progress']
+      }
+    });
+
+    // Orders by status
+    const ordersByStatus = await Order.findAll({
+      attributes: [
+        'status',
+        [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+      ],
+      where: {
+        assignedToId: employeeId
+      },
+      group: ['status'],
+      raw: true
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        daily: {
+          assignments: dailyAssignments,
+          completed: dailyCompleted
+        },
+        monthly: {
+          assignments: monthlyAssignments,
+          completed: monthlyCompleted
+        },
+        current: {
+          active: activeOrders
+        },
+        ordersByStatus
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { OrderService } from '../../../services/order.service';
 import { AuthService } from '../../../services/auth.service';
 
@@ -23,16 +24,24 @@ import { AuthService } from '../../../services/auth.service';
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatPaginatorModule
   ],
   templateUrl: './employee-orders.component.html',
   styleUrls: ['./employee-orders.component.scss']
 })
 export class EmployeeOrdersComponent implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
   orders: any[] = [];
   loading = false;
   displayedColumns: string[] = ['orderId', 'customerName', 'serviceType', 'status', 'priority', 'scheduledDate', 'actions'];
   currentUserId: number | null = null;
+  
+  // Pagination
+  totalRecords = 0;
+  pageSize = 10;
+  currentPage = 1;
 
   constructor(
     private orderService: OrderService,
@@ -51,13 +60,16 @@ export class EmployeeOrdersComponent implements OnInit {
 
   loadOrders(): void {
     this.loading = true;
-    this.orderService.getOrders().subscribe({
+    const params = {
+      page: this.currentPage,
+      limit: this.pageSize,
+      assignedToId: this.currentUserId
+    };
+    
+    this.orderService.getOrders(params).subscribe({
       next: (response: any) => {
-        // Filter orders assigned to current employee
-        const allOrders = response.data || response || [];
-        this.orders = allOrders.filter((order: any) => 
-          order.assignedToId === this.currentUserId
-        );
+        this.orders = response.data || [];
+        this.totalRecords = response.total || 0;
         this.loading = false;
       },
       error: (error) => {
@@ -70,6 +82,12 @@ export class EmployeeOrdersComponent implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  onPageChange(event: any): void {
+    this.currentPage = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
+    this.loadOrders();
   }
 
   viewOrder(orderId: number): void {
