@@ -10,6 +10,8 @@ const apiLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Trust the first proxy (nginx)
+  trustProxy: true,
   handler: (req, res) => {
     res.status(429).json({
       success: false,
@@ -28,6 +30,8 @@ const authLimiter = rateLimit({
     success: false,
     message: 'Too many login attempts from this IP, please try again after 15 minutes.'
   },
+  // Trust the first proxy (nginx)
+  trustProxy: true,
   handler: (req, res) => {
     res.status(429).json({
       success: false,
@@ -45,6 +49,8 @@ const createOrderLimiter = rateLimit({
     success: false,
     message: 'Too many orders created from this IP, please try again later.'
   },
+  // Trust the first proxy (nginx)
+  trustProxy: true,
   handler: (req, res) => {
     res.status(429).json({
       success: false,
