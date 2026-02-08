@@ -119,16 +119,18 @@ export class AmcAssignmentComponent implements OnInit {
 
   calculateTotalAmount(): number {
     if (!this.selectedPlan) return 0;
-    const subtotal = parseFloat(this.selectedPlan.price);
-    const gst = (subtotal * parseFloat(this.selectedPlan.gst)) / 100;
-    return subtotal + gst;
+    const price = Number(this.selectedPlan.price) || 0;
+    const gstRate = Number(this.selectedPlan.gst) || 18;
+    const gst = (price * gstRate) / 100;
+    return price + gst;
   }
 
   calculateEndDate(): Date | null {
     if (!this.selectedPlan || !this.assignmentForm.get('startDate')?.value) return null;
     const startDate = new Date(this.assignmentForm.get('startDate')?.value);
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + this.selectedPlan.duration);
+    const duration = Number(this.selectedPlan.duration) || 0;
+    endDate.setMonth(endDate.getMonth() + duration);
     return endDate;
   }
 
