@@ -1,0 +1,4 @@
+{
+  "apiUrl": "https://your-aws-instance.com/api",
+  "production": true
+}

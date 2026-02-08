@@ -40,8 +40,35 @@ export class ErrorInterceptor implements HttpInterceptor {
           this.router.navigate(['/login']);
         }
 
-        const errorMessage = error.error?.message || error.statusText;
-        return throwError(() => new Error(errorMessage));
+        // Preserve error structure for better error handling
+        let errorMessage = 'An unexpected error occurred';
+        
+        if (error.error instanceof ErrorEvent) {
+          // Client-side or network error
+          errorMessage = `Network error: ${error.error.message}`;
+        } else if (error.status === 0) {
+          // Network error or CORS issue
+          errorMessage = 'Cannot connect to server. Please check your network connection or API configuration.';
+        } else if (error.error?.message) {
+          // Server-side error with message
+          errorMessage = error.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else if (error.statusText) {
+          errorMessage = error.statusText;
+        }
+
+        // Return the original error with enhanced message
+        const enhancedError = {
+          ...error,
+          error: {
+            ...error.error,
+            message: errorMessage
+          },
+          message: errorMessage
+        };
+        
+        return throwError(() => enhancedError);
       })
     );
   }

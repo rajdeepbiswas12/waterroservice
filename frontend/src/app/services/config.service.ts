@@ -20,8 +20,10 @@ export class ConfigService {
       this.config = await firstValueFrom(
         this.http.get<AppConfig>('/assets/config.json')
       );
+      console.log('Config loaded successfully:', this.config);
     } catch (error) {
       console.error('Failed to load config, using defaults:', error);
+      // Provide defaults that work for production
       this.config = {
         apiUrl: 'http://localhost:5000/api',
         production: false

@@ -86,7 +86,20 @@ export class LoginComponent implements OnInit {
       error: (error) => {
         console.error('Login error:', error);
         this.loading = false;
-        const errorMsg = error?.error?.message || error?.message || 'Login failed. Please check your credentials.';
+        
+        let errorMsg = 'Login failed. Please try again.';
+        
+        // Handle different error structures
+        if (error?.error?.message) {
+          errorMsg = error.error.message;
+        } else if (error?.message) {
+          errorMsg = error.message;
+        } else if (typeof error === 'string') {
+          errorMsg = error;
+        } else if (error?.status === 0) {
+          errorMsg = 'Cannot connect to server. Please check your network connection.';
+        }
+        
         this.snackBar.open(errorMsg, 'Close', {
           duration: 5000,
           horizontalPosition: 'end',
