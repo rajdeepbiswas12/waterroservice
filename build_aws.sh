@@ -7,7 +7,7 @@ git pull origin master
 cd $BACKEND_DIR
 npm install
 pm2 status
-pm2 restart all
+pm2 restart waterroservice-backend 
 cd $FRONTEND_DIR
 npm install
 npm run build
