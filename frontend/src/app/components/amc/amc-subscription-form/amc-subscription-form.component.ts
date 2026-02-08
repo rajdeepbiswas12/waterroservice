@@ -168,8 +168,9 @@ export class AmcSubscriptionFormComponent implements OnInit {
 
   calculateBalance(): void {
     if (this.selectedPlan) {
-      const gst = this.selectedPlan.gst || 18;
-      const totalAmount = this.selectedPlan.price + (this.selectedPlan.price * gst / 100);
+      const price = Number(this.selectedPlan.price) || 0;
+      const gst = Number(this.selectedPlan.gst) || 18;
+      const totalAmount = price + (price * gst / 100);
       const paidAmount = this.subscriptionForm.get('paidAmount')?.value || 0;
       
       // Update payment status based on amount
@@ -185,8 +186,9 @@ export class AmcSubscriptionFormComponent implements OnInit {
 
   getTotalAmount(): number {
     if (this.selectedPlan) {
-      const gst = this.selectedPlan.gst || 18;
-      return this.selectedPlan.price + (this.selectedPlan.price * gst / 100);
+      const price = Number(this.selectedPlan.price) || 0;
+      const gst = Number(this.selectedPlan.gst) || 18;
+      return price + (price * gst / 100);
     }
     return 0;
   }
@@ -246,8 +248,9 @@ export class AmcSubscriptionFormComponent implements OnInit {
   }
 
   getPlanDisplay(plan: AmcPlan): string {
-    const gst = plan.gst || 18;
-    const total = plan.price + (plan.price * gst / 100);
+    const price = Number(plan.price) || 0;
+    const gst = Number(plan.gst) || 18;
+    const total = price + (price * gst / 100);
     return `${plan.planName} - ₹${total.toFixed(0)} (${plan.duration} months, ${plan.numberOfVisits} visits)`;
   }
 
