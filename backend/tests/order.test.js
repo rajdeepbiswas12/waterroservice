@@ -286,3 +286,73 @@ describe('Order Endpoints', () => {
     });
   });
 });
+
+  // Test employee dashboard statistics
+  describe('GET /api/orders/employee/dashboard-stats', () => {
+    beforeEach(async () => {
+      // Create test orders for the employee
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      await Order.create({
+        orderNumber: 'TEST-DAILY-001',
+        customerId: 1,
+        customerName: 'Test Customer',
+        customerPhone: '9999999999',
+        serviceType: 'Installation',
+        status: 'assigned',
+        assignedToId: testEmployee.id,
+        priority: 'medium',
+        createdAt: today
+      });
+
+      await Order.create({
+        orderNumber: 'TEST-COMPLETED-001',
+        customerId: 1,
+        customerName: 'Test Customer 2',
+        customerPhone: '8888888888',
+        serviceType: 'Repair',
+        status: 'completed',
+        assignedToId: testEmployee.id,
+        completedDate: today,
+        priority: 'high',
+        createdAt: today
+      });
+    });
+
+    it('should return employee dashboard statistics', async () => {
+      const res = await request(app)
+        .get('/api/orders/employee/dashboard-stats')
+        .set('Authorization', `Bearer ${employeeToken}`)
+        .expect(200);
+
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toHaveProperty('daily');
+      expect(res.body.data).toHaveProperty('monthly');
+      expect(res.body.data).toHaveProperty('current');
+      expect(res.body.data).toHaveProperty('ordersByStatus');
+      
+      expect(res.body.data.daily.assignments).toBeGreaterThanOrEqual(0);
+      expect(res.body.data.daily.completed).toBeGreaterThanOrEqual(0);
+      expect(res.body.data.monthly.assignments).toBeGreaterThanOrEqual(0);
+      expect(res.body.data.monthly.completed).toBeGreaterThanOrEqual(0);
+      expect(res.body.data.current.active).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should not allow access without authentication', async () => {
+      await request(app)
+        .get('/api/orders/employee/dashboard-stats')
+        .expect(401);
+    });
+
+    it('should return only employee specific data', async () => {
+      const res = await request(app)
+        .get('/api/orders/employee/dashboard-stats')
+        .set('Authorization', `Bearer ${employeeToken}`)
+        .expect(200);
+
+      // Verify that the stats are for this specific employee
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.daily).toBeDefined();
+    });
+  });
