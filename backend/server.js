@@ -32,6 +32,9 @@ const amcRoutes = require('./routes/amcRoutes');
 
 const app = express();
 
+// Trust proxy - required when behind nginx
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for API
