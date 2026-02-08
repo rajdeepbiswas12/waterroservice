@@ -3,11 +3,12 @@ BACKEND_DIR="$PROJECT_ROOT/backend"
 FRONTEND_DIR="$PROJECT_ROOT/frontend"
 
 cd $PROJECT_ROOT
+git config --global --add safe.directory /home/ec2-user/waterroservice
 git pull origin master
 cd $BACKEND_DIR
-npm install
+# npm install
 pm2 status
-pm2 restart waterroservice-backend --update-env
+pm2 restart  waterroservice-backend
 cd $FRONTEND_DIR
 npm install
 npm run build
