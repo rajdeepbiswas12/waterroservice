@@ -348,6 +348,31 @@ exports.createSubscription = async (req, res) => {
       });
     }
 
+    // Check if customer already has an active subscription
+    const existingSubscription = await AmcSubscription.findOne({
+      where: {
+        customerId,
+        status: 'active'
+      },
+      include: [{
+        model: AmcPlan,
+        as: 'plan',
+        attributes: ['planName', 'planCode']
+      }]
+    });
+
+    if (existingSubscription) {
+      return res.status(400).json({
+        success: false,
+        message: 'Customer already has an active AMC subscription',
+        data: {
+          subscriptionNumber: existingSubscription.subscriptionNumber,
+          planName: existingSubscription.plan?.planName,
+          endDate: existingSubscription.endDate
+        }
+      });
+    }
+
     // Get plan details
     const plan = await AmcPlan.findByPk(planId);
     if (!plan) {

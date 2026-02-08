@@ -164,8 +164,19 @@ export class AmcAssignmentComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error assigning AMC:', error);
-        this.snackBar.open(error.error?.message || 'Failed to assign AMC subscription', 'Close', {
-          duration: 3000
+        let errorMessage = 'Failed to assign AMC subscription';
+        
+        // Check if customer already has active subscription
+        if (error.status === 400 && error.error?.data) {
+          const existingData = error.error.data;
+          errorMessage = `Customer already has an active AMC plan: ${existingData.planName || 'N/A'}. Subscription #${existingData.subscriptionNumber}. Valid until: ${new Date(existingData.endDate).toLocaleDateString()}`;
+        } else if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        this.snackBar.open(errorMessage, 'Close', {
+          duration: 6000,
+          panelClass: ['error-snackbar']
         });
         this.submitting = false;
       }

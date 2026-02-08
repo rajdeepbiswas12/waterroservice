@@ -55,7 +55,15 @@ export class EmployeeStatsComponent implements OnInit {
     this.loading = true;
     this.orderService.getEmployeeDashboardStats().subscribe({
       next: (response: any) => {
-        this.stats = response;
+        // Transform ordersByStatus array to object
+        if (response.data?.ordersByStatus && Array.isArray(response.data.ordersByStatus)) {
+          const statusObj: { [key: string]: number } = {};
+          response.data.ordersByStatus.forEach((item: any) => {
+            statusObj[item.status] = parseInt(item.count);
+          });
+          response.data.ordersByStatus = statusObj;
+        }
+        this.stats = response.data;
         this.loading = false;
       },
       error: (error) => {
