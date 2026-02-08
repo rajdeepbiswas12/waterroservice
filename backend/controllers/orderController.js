@@ -29,6 +29,7 @@ const createOrderHistory = async (orderId, userId, action, oldStatus, newStatus,
 exports.createOrder = async (req, res) => {
   try {
     const {
+      customerId,
       customerName,
       customerPhone,
       customerEmail,
@@ -38,13 +39,31 @@ exports.createOrder = async (req, res) => {
       serviceType,
       priority,
       description,
-      scheduledDate
+      scheduledDate,
+      assignedToId,
+      notes
     } = req.body;
+
+    // Validate required fields
+    if (!customerId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Customer is required'
+      });
+    }
+
+    if (!serviceType) {
+      return res.status(400).json({
+        success: false,
+        message: 'Service type is required'
+      });
+    }
 
     const orderNumber = generateOrderNumber();
 
     const order = await Order.create({
       orderNumber,
+      customerId,
       customerName,
       customerPhone,
       customerEmail,
@@ -54,7 +73,9 @@ exports.createOrder = async (req, res) => {
       serviceType,
       priority: priority || 'medium',
       description,
+      notes,
       scheduledDate,
+      assignedToId,
       status: 'pending'
     });
 
