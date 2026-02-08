@@ -24,11 +24,25 @@
     class="sidenav">
     <mat-nav-list>
       <a mat-list-item 
+         routerLink="/employee/dashboard" 
+         routerLinkActive="active"
+         (click)="onMenuItemClick()">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item 
          routerLink="/employee/orders" 
          routerLinkActive="active"
          (click)="onMenuItemClick()">
         <mat-icon matListItemIcon>assignment</mat-icon>
         <span matListItemTitle>My Orders</span>
+      </a>
+      <a mat-list-item 
+         routerLink="/employee/amc-assignment" 
+         routerLinkActive="active"
+         (click)="onMenuItemClick()">
+        <mat-icon matListItemIcon>verified_user</mat-icon>
+        <span matListItemTitle>Assign AMC Plan</span>
       </a>
       <mat-divider></mat-divider>
     </mat-nav-list>

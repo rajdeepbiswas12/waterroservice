@@ -15,6 +15,8 @@ import { EmployeeDashboardComponent } from './components/employee/employee-dashb
 import { EmployeeOrdersComponent } from './components/employee/employee-orders/employee-orders.component';
 import { OrderDetailComponent } from './components/employee/order-detail/order-detail.component';
 import { TrackOrderComponent } from './components/shared/track-order/track-order.component';
+import { AmcAssignmentComponent } from './components/employee/amc-assignment/amc-assignment.component';
+import { EmployeeStatsComponent } from './components/employee/employee-stats/employee-stats.component';
 import { CustomerListComponent } from './components/customers/customer-list/customer-list.component';
 import { CustomerFormComponent } from './components/customers/customer-form/customer-form.component';
 import { AmcPlansComponent } from './components/amc/amc-plans/amc-plans.component';
@@ -59,9 +61,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     data: { roles: ['employee'] },
     children: [
-      { path: '', redirectTo: 'orders', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: EmployeeStatsComponent },
       { path: 'orders', component: EmployeeOrdersComponent },
-      { path: 'orders/:id', component: OrderDetailComponent }
+      { path: 'orders/:id', component: OrderDetailComponent },
+      { path: 'amc-assignment', component: AmcAssignmentComponent }
     ]
   },
   { path: '**', redirectTo: '/login' }

@@ -92,4 +92,8 @@ export class OrderService {
     let params = new HttpParams().set('months', months.toString());
     return this.http.get<any>(`${this.apiUrl}/dashboard/monthly-stats`, { params });
   }
+
+  getEmployeeDashboardStats(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/employee/dashboard-stats`);
+  }
 }

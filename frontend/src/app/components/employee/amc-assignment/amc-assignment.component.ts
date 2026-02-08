@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, map } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
 import { AmcService } from '../../../services/amc.service';
 import { CustomerService } from '../../../services/customer.service';
@@ -82,7 +82,9 @@ export class AmcAssignmentComponent implements OnInit {
       distinctUntilChanged(),
       switchMap(value => {
         if (typeof value === 'string' && value.length >= 2) {
-          return this.customerService.searchCustomers(value);
+          return this.customerService.getAllCustomers(1, 10, value).pipe(
+            switchMap((response: any) => of(response.data || []))
+          );
         }
         return of([]);
       })
@@ -91,12 +93,12 @@ export class AmcAssignmentComponent implements OnInit {
 
   loadAmcPlans(): void {
     this.loading = true;
-    this.amcService.getAmcPlans({ isActive: true }).subscribe({
+    this.amcService.getAllPlans(true).subscribe({
       next: (response: any) => {
         this.amcPlans = response.data || [];
         this.loading = false;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading AMC plans:', error);
         this.snackBar.open('Failed to load AMC plans', 'Close', { duration: 3000 });
         this.loading = false;

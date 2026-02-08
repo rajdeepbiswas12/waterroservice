@@ -1,0 +1,130 @@
+<div class="employee-stats-container">
+  <div class="page-header">
+    <h1>
+      <mat-icon>dashboard</mat-icon>
+      My Dashboard
+    </h1>
+  </div>
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Loading dashboard statistics...</p>
+  </div>
+
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-icon color="warn">error</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-raised-button color="primary" (click)="loadStats()">
+      <mat-icon>refresh</mat-icon>
+      Retry
+    </button>
+  </div>
+
+  <div *ngIf="!loading && !error && stats" class="stats-grid">
+    <!-- Today's Stats -->
+    <mat-card class="stat-card today">
+      <mat-card-header>
+        <mat-icon class="card-icon">today</mat-icon>
+        <mat-card-title>Today's Performance</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-value">{{ stats.daily.assignments }}</div>
+            <div class="stat-label">Assignments</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value success">{{ stats.daily.completed }}</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="progress-info">
+          <mat-icon>trending_up</mat-icon>
+          <span>{{ getCompletionRate('daily') }}% completion rate</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Monthly Stats -->
+    <mat-card class="stat-card monthly">
+      <mat-card-header>
+        <mat-icon class="card-icon">calendar_month</mat-icon>
+        <mat-card-title>This Month</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-value">{{ stats.monthly.assignments }}</div>
+            <div class="stat-label">Assignments</div>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item">
+            <div class="stat-value success">{{ stats.monthly.completed }}</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+        <div class="progress-info">
+          <mat-icon>bar_chart</mat-icon>
+          <span>{{ getCompletionRate('monthly') }}% completion rate</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Active Orders -->
+    <mat-card class="stat-card active">
+      <mat-card-header>
+        <mat-icon class="card-icon">assignment</mat-icon>
+        <mat-card-title>Active Orders</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="large-stat">
+          <div class="stat-value">{{ stats.current.active }}</div>
+          <div class="stat-label">In Progress</div>
+        </div>
+        <button mat-raised-button color="primary" (click)="navigateToOrders()">
+          <mat-icon>visibility</mat-icon>
+          View Orders
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Orders by Status -->
+    <mat-card class="stat-card status-breakdown">
+      <mat-card-header>
+        <mat-icon class="card-icon">pie_chart</mat-icon>
+        <mat-card-title>Orders by Status</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="status-list">
+          <div *ngFor="let status of getStatusKeys()" class="status-item">
+            <div class="status-badge" [ngClass]="status.toLowerCase()">
+              <mat-icon>fiber_manual_record</mat-icon>
+              <span class="status-name">{{ status }}</span>
+            </div>
+            <div class="status-count">{{ getStatusCount(status) }}</div>
+          </div>
+          <div *ngIf="getStatusKeys().length === 0" class="empty-state">
+            <mat-icon>inbox</mat-icon>
+            <p>No orders yet</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Quick Actions -->
+  <div *ngIf="!loading && !error" class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+      <button mat-raised-button color="primary" routerLink="/employee/orders">
+        <mat-icon>assignment</mat-icon>
+        View All Orders
+      </button>
+      <button mat-raised-button color="accent" routerLink="/employee/amc-assignment">
+        <mat-icon>verified_user</mat-icon>
+        Assign AMC Plan
+      </button>
+    </div>
+  </div>
+</div>
