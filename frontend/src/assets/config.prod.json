@@ -1,4 +1,4 @@
 {
-  "apiUrl": "https://your-aws-instance.com/api",
+  "apiUrl": "https://ec2-54-236-110-123.compute-1.amazonaws.com/api",
   "production": true
 }
